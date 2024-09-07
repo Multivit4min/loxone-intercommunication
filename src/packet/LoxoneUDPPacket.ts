@@ -15,11 +15,11 @@ export class LoxoneUDPPacket {
   }
 
   get targetId() {
-    return this.buffer.subarray(17, 25).toString("utf8").replace(/\x00/g, "")
+    return this.buffer.subarray(17, 24).toString("utf8").replace(/\x00/g, "")
   }
 
   get packetId() {
-    return this.buffer.subarray(26, 34).toString("utf8").replace(/\x00/g, "")
+    return this.buffer.subarray(26, 33).toString("utf8").replace(/\x00/g, "")
   }
 
   get payloadLength() {

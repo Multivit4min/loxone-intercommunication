@@ -1,10 +1,9 @@
-import dgram from "dgram"
-import { LoxoneUDPPacket } from "./src/packet/LoxoneUDPPacket"
+import { LoxoneUDPServer } from "./src/LoxoneServer"
 
 
-const server = dgram.createSocket("udp4")
-server.on("message", (buffer, rinfo) => {
-  const packet = new LoxoneUDPPacket(buffer)
+const server = new LoxoneUDPServer()
+
+server.on("data", ({ packet }) => {
   console.log({
     packet,
     sourceId: packet.sourceId,
@@ -15,4 +14,5 @@ server.on("message", (buffer, rinfo) => {
     payload: packet.payload.value
   })
 })
+
 server.bind(61263)
