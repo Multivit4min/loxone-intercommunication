@@ -1,6 +1,7 @@
 import { LoxoneServer } from "./src/LoxoneServer"
 import { DATA_TYPE } from "./src/packet/DataType"
 import { LoxoneIOPacket } from "./src/packet/LoxoneIOPacket"
+import { T5Payload } from "./src/packet/payload/T5Payload"
 
 
 const server = new LoxoneServer({ ownId: "remote" })
@@ -18,7 +19,6 @@ server.on("data", ({ packet }) => {
   //  buffer: packet.toBuffer(),
   //  packet,
   //})
-  if (packet.type === DATA_TYPE.T5) return
   //echo the packet back to the miniserver
   remote.send(packet.packetId, packet.payload.value)
 })

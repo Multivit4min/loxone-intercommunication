@@ -5,6 +5,7 @@ import { AnalogPayload } from "./payload/AnalogPayload"
 import { BufferPayload } from "./payload/BufferPayload"
 import { DigitalPayload } from "./payload/DigitalPayload"
 import { Payload } from "./payload/Payload"
+import { T5Payload } from "./payload/T5Payload"
 import { TextPayload } from "./payload/TextPayload"
 
 export class LoxoneIOPacket extends LoxoneUDPPacket {
@@ -64,6 +65,7 @@ export class LoxoneIOPacket extends LoxoneUDPPacket {
       case DATA_TYPE.ANALOG: return new AnalogPayload(this.payloadBuffer)
       case DATA_TYPE.DIGITAL: return new DigitalPayload(this.payloadBuffer)
       case DATA_TYPE.TEXT: return new TextPayload(this.payloadBuffer)
+      case DATA_TYPE.T5: return new T5Payload(this.payloadBuffer)
       default: return new BufferPayload(this.payloadBuffer)
     }
   }
@@ -102,6 +104,7 @@ export class LoxoneIOPacket extends LoxoneUDPPacket {
       case DATA_TYPE.ANALOG: return AnalogPayload.bufferFromValue(value)
       case DATA_TYPE.DIGITAL: return DigitalPayload.bufferFromValue(value)
       case DATA_TYPE.TEXT: return TextPayload.bufferFromValue(value)
+      case DATA_TYPE.T5: return T5Payload.bufferFromValue(value)
       default: throw new Error(`data type ${type} is not implemented`)
     }
   }
