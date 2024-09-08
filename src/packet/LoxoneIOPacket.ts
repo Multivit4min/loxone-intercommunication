@@ -5,6 +5,9 @@ import { AnalogPayload } from "./payload/AnalogPayload"
 import { BufferPayload } from "./payload/BufferPayload"
 import { DigitalPayload } from "./payload/DigitalPayload"
 import { Payload } from "./payload/Payload"
+import { SmartActuatorSingleChannelPayload } from "./payload/SmartActuatorSingleChannelPayload"
+import { SmartActuatorTunableWhitePayload } from "./payload/SmartActuatorTunableWhitePayload"
+import { SmartRGBWPayload } from "./payload/SmartRGBWPayload"
 import { T5Payload } from "./payload/T5Payload"
 import { TextPayload } from "./payload/TextPayload"
 
@@ -66,6 +69,9 @@ export class LoxoneIOPacket extends LoxoneUDPPacket {
       case DATA_TYPE.DIGITAL: return new DigitalPayload(this.payloadBuffer)
       case DATA_TYPE.TEXT: return new TextPayload(this.payloadBuffer)
       case DATA_TYPE.T5: return new T5Payload(this.payloadBuffer)
+      case DATA_TYPE.SmartActuatorRGBW: return new SmartRGBWPayload(this.payloadBuffer)
+      case DATA_TYPE.SmartActuatorSingleChannel: return new SmartActuatorSingleChannelPayload(this.payloadBuffer)
+      case DATA_TYPE.SmartActuatorTunableWhite: return new SmartActuatorTunableWhitePayload(this.payloadBuffer)
       default: return new BufferPayload(this.payloadBuffer)
     }
   }
@@ -105,15 +111,26 @@ export class LoxoneIOPacket extends LoxoneUDPPacket {
       case DATA_TYPE.DIGITAL: return DigitalPayload.bufferFromValue(value)
       case DATA_TYPE.TEXT: return TextPayload.bufferFromValue(value)
       case DATA_TYPE.T5: return T5Payload.bufferFromValue(value)
+      case DATA_TYPE.SmartActuatorRGBW: return SmartRGBWPayload.bufferFromValue(value)
+      case DATA_TYPE.SmartActuatorSingleChannel: return SmartActuatorSingleChannelPayload.bufferFromValue(value)
+      case DATA_TYPE.SmartActuatorTunableWhite: return SmartActuatorTunableWhitePayload.bufferFromValue(value)
       default: throw new Error(`data type ${type} is not implemented`)
     }
   }
 
-  static getTypeDataFromValue<T extends LoxoneIOPacket.TypeFromValue>(value: T): LoxoneIOPacket.PayloadDataType {
+  static getTypeDataFromValue(value: LoxoneIOPacket.TypeFromValue): LoxoneIOPacket.PayloadDataType {
     switch(typeof value) {
       case "string": return { type: DATA_TYPE.TEXT, value }
       case "number": return { type: DATA_TYPE.ANALOG, value }
       case "boolean": return { type: DATA_TYPE.DIGITAL, value }
+      case "object":
+        if (<any>value instanceof Buffer) {
+          return { type: DATA_TYPE.SmartActuatorTunableWhite, value }
+        } else if (value["red"] && value["green"] && value["blue"] && value["white"]) {
+          return { type: DATA_TYPE.SmartActuatorRGBW, value }
+        } else if (value["white"]) {
+          return { type: DATA_TYPE.SmartActuatorTunableWhite, value }
+        }
       default: throw new Error(`unknown value type: ${typeof value}`)
     }
   }
@@ -150,7 +167,16 @@ export namespace LoxoneIOPacket {
     value: string
   } | {
     type: DATA_TYPE.T5
-    value: any
+    value: T5Payload.ButtonPressed
+  } | {
+    type: DATA_TYPE.SmartActuatorRGBW
+    value: SmartRGBWPayload.Type
+  } | {
+    type: DATA_TYPE.SmartActuatorSingleChannel
+    value: SmartActuatorSingleChannelPayload.Type
+  } | {
+    type: DATA_TYPE.SmartActuatorTunableWhite
+    value: Buffer
   }
 
 }

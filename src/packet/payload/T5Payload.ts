@@ -25,26 +25,3 @@ export namespace T5Payload {
   }
 
 }
-
-/*
-middle button press
-00 00 00 00 00 00 10 40
-4160
-
-left upper press
-00 00 00 00 00 00 f0 3f
-61503
-
-left bottom press
-00 00 00 00 00 00 20 40
-8256
-
-right upper press
-00 00 00 00 00 00 00 40
-64
-
-right lower press
-00 00 00 00 00 00 30 40
-12352
-
-*/
