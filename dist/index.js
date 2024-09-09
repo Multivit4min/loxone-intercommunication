@@ -398,6 +398,22 @@ var AnalogOutput = class extends Output {
   }
 };
 
+// src/output/DigitalOutput.ts
+var DigitalOutput = class extends Output {
+  constructor() {
+    super(...arguments);
+    this.value = false;
+  }
+  setValue(value) {
+    this.value = Boolean(value);
+    this.send();
+    return this;
+  }
+  getValue() {
+    return Boolean(this.value);
+  }
+};
+
 // src/output/T5Output.ts
 var T5Output = class extends Output {
   constructor() {
@@ -547,7 +563,7 @@ var LoxoneRemoteSystem = class extends import_stream.EventEmitter {
   createOutputInstance(packetId, type) {
     switch (type) {
       case 0 /* DIGITAL */:
-        return new AnalogOutput({ packetId, remoteSystem: this });
+        return new DigitalOutput({ packetId, remoteSystem: this });
       case 1 /* ANALOG */:
         return new AnalogOutput({ packetId, remoteSystem: this });
       case 2 /* TEXT */:
@@ -702,22 +718,6 @@ var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
       default:
         return console.debug(/* @__PURE__ */ new Date(), buffer);
     }
-  }
-};
-
-// src/output/DigitalOutput.ts
-var DigitalOutput = class extends Output {
-  constructor() {
-    super(...arguments);
-    this.value = false;
-  }
-  setValue(value) {
-    this.value = value;
-    this.send();
-    return this;
-  }
-  getValue() {
-    return this.value;
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
