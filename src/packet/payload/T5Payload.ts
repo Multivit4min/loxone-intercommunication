@@ -2,11 +2,13 @@ import { Payload } from "./Payload"
 
 export class T5Payload extends Payload {
 
-  get value(): T5Payload.ButtonPressed {
-    return this.buffer.readUint16LE(6)
+  get value(): T5Payload.Type {
+    return {
+      button: this.buffer.readUint16LE(6)
+    }
   }
 
-  static bufferFromValue(button: T5Payload.ButtonPressed) {
+  static bufferFromValue({ button }: T5Payload.Type) {
     const buffer = Buffer.alloc(8)
     buffer.writeUint16LE(button, 6)
     return buffer
@@ -14,6 +16,10 @@ export class T5Payload extends Payload {
 }
 
 export namespace T5Payload {
+
+  export type Type = {
+    button: ButtonPressed
+  }
 
   export enum ButtonPressed {
     NONE = 0,

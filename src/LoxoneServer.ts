@@ -3,6 +3,7 @@ import { EventEmitter } from "stream"
 import { LoxoneUDPPacket } from "./packet/LoxoneUDPPacket"
 import { LoxoneRemoteSystem } from "./LoxoneRemoteSystem"
 import { LoxoneIOPacket } from "./packet/LoxoneIOPacket"
+import { LoxoneInput } from "./packet/LoxoneInput"
 
 
 export interface LoxoneServer extends EventEmitter {
@@ -47,7 +48,7 @@ export class LoxoneServer extends EventEmitter {
   static packetFromBuffer(buffer: Buffer): LoxoneUDPPacket|void {
     const controlByte = buffer.readUInt8(0)
     switch (controlByte) {
-      case 0x9e: return LoxoneIOPacket.fromBuffer(buffer)
+      case 0x9e: return new LoxoneInput(buffer)
       case 0x8d: return console.log("control byte", new Date(), buffer) //what is this
       default: return console.log(new Date(), buffer)
     }
