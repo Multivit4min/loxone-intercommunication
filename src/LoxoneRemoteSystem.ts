@@ -99,7 +99,7 @@ export class LoxoneRemoteSystem extends EventEmitter {
    */
   private createOutputInstance(packetId: string, type: DATA_TYPE) {
     switch (type) {
-      case DATA_TYPE.DIGITAL: return new AnalogOutput({ packetId, remoteSystem: this })
+      case DATA_TYPE.DIGITAL: return new DigitalOutput({ packetId, remoteSystem: this })
       case DATA_TYPE.ANALOG: return new AnalogOutput({ packetId, remoteSystem: this })
       case DATA_TYPE.TEXT: return new TextOutput({ packetId, remoteSystem: this })
       case DATA_TYPE.T5: return new T5Output({ packetId, remoteSystem: this })
