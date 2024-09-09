@@ -70,8 +70,8 @@ export class LoxoneServer extends EventEmitter {
     const controlByte = buffer.readUInt8(0)
     switch (controlByte) {
       case 0x9e: return new LoxoneInput(buffer)
-      case 0x8d: return console.log("control byte", new Date(), buffer) //what is this
-      default: return console.log(new Date(), buffer)
+      case 0x8d: return //not implemented
+      default: return console.debug(new Date(), buffer)
     }
   }
 
