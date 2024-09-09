@@ -12,7 +12,7 @@ export class AnalogOutput extends Output {
   isTypeValid(value: any) {
     return (
       typeof value === "number" &&
-      !isFinite(value) &&
+      isFinite(value) &&
       !isNaN(value)
     )
   }

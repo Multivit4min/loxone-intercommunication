@@ -364,7 +364,7 @@ var AnalogOutput = class extends Output {
     return this.setValue(parseFloat(value));
   }
   isTypeValid(value) {
-    return typeof value === "number" && !isFinite(value) && !isNaN(value);
+    return typeof value === "number" && isFinite(value) && !isNaN(value);
   }
   setValue(value) {
     if (!this.isTypeValid(value)) throw new OutputTypeError(this, value);
