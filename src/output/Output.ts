@@ -33,6 +33,7 @@ export abstract class Output {
   }
 
   send() {
+    this.updateInterval()
     return this.remoteSystem.send(this)
   }
 

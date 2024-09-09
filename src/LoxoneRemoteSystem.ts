@@ -8,6 +8,8 @@ import { AnalogOutput } from "./output/AnalogOutput"
 import { DigitalOutput } from "./output/DigitalOutput"
 import { T5Output } from "./output/T5Output"
 import { TextOutput } from "./output/TextOutput"
+import { SmartRGBWOutput } from "./output/SmartRGBWOutput"
+import { SmartActuatorSingleChannelOutput } from "./output/SmartActuatorSingleChannel"
 
 export class LoxoneRemoteSystem extends EventEmitter {
 
@@ -23,14 +25,23 @@ export class LoxoneRemoteSystem extends EventEmitter {
     })
   }
 
+  /**
+   * server instance the remote system belongs to
+   */
   get server() {
     return this.props.server
   }
 
+  /**
+   * ownId which is being sent to the remote miniserver
+   */
   get ownId() {
     return this.server.ownId
   }
 
+  /**
+   * remoteId which has been set on the remote miniserver
+   */
   get remoteId() {
     return this.props.remoteId
   }
@@ -50,13 +61,26 @@ export class LoxoneRemoteSystem extends EventEmitter {
     return out
   }
 
+  /**
+   * finds an output by the packetId in the output list
+   * @param packetId name to find
+   * @returns 
+   */
   private findOutput(packetId: string) {
     return this.outputs.find(o => o.packetId === packetId)
   }
 
+  /**
+   * creates a new output which is sendable to the miniserver
+   * @param packetId name of the output
+   * @param type type of the output
+   */
   createOutput(packetId: string, type: DATA_TYPE.DIGITAL): DigitalOutput
   createOutput(packetId: string, type: DATA_TYPE.ANALOG): AnalogOutput
   createOutput(packetId: string, type: DATA_TYPE.TEXT): TextOutput
+  createOutput(packetId: string, type: DATA_TYPE.T5): T5Output
+  createOutput(packetId: string, type: DATA_TYPE.SmartActuatorRGBW): SmartRGBWOutput
+  createOutput(packetId: string, type: DATA_TYPE.SmartActuatorSingleChannel): SmartActuatorSingleChannelOutput
   createOutput(packetId: string, type: DATA_TYPE.T5): T5Output
   createOutput(packetId: string, type: DATA_TYPE): Output
   createOutput(packetId: string, type: DATA_TYPE) {
@@ -67,14 +91,28 @@ export class LoxoneRemoteSystem extends EventEmitter {
     return output
   }
 
+  /**
+   * creates the instance object of the output
+   * @param packetId name of the output
+   * @param type type of the output
+   * @returns 
+   */
   private createOutputInstance(packetId: string, type: DATA_TYPE) {
     switch (type) {
-      case DATA_TYPE.ANALOG: return new AnalogOutput({ packetId, remoteSystem: this })
       case DATA_TYPE.DIGITAL: return new AnalogOutput({ packetId, remoteSystem: this })
+      case DATA_TYPE.ANALOG: return new AnalogOutput({ packetId, remoteSystem: this })
+      case DATA_TYPE.TEXT: return new TextOutput({ packetId, remoteSystem: this })
+      case DATA_TYPE.T5: return new T5Output({ packetId, remoteSystem: this })
+      case DATA_TYPE.SmartActuatorRGBW: return new SmartRGBWOutput({ packetId, remoteSystem: this })
+      case DATA_TYPE.SmartActuatorSingleChannel: return new SmartActuatorSingleChannelOutput({ packetId, remoteSystem: this })
       default: throw new Error(`can not create output ${type} is not implemented`)
     }
   }
 
+  /**
+   * sends the output to the miniserver
+   * @param output 
+   */
   send(output: Output) {
     const typeData = LoxoneOutput.getTypeDataFromValue(output.getValue())
     const packet = new LoxoneOutput({
@@ -85,6 +123,11 @@ export class LoxoneRemoteSystem extends EventEmitter {
     this.sendBuffer(packet.toBuffer()) 
   }
 
+  /**
+   * sends the buffer to the miniserver
+   * @param buffer 
+   * @returns 
+   */
   private async sendBuffer(buffer: Buffer) {
     await this.connectedResolve
     return this.socket.send(buffer)
