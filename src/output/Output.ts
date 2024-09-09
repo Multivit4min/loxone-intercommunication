@@ -14,8 +14,18 @@ export abstract class Output {
     return this.props.remoteSystem
   }
 
+  abstract setValueFromString(value: string): this
+  abstract isTypeValid(value: any): boolean
   abstract setValue(value: LoxoneOutput.TypeFromValue): this
   abstract getValue(): LoxoneOutput.TypeFromValue
+
+  protected isValidRange<T extends Record<string, any>>(data: T, color: keyof T, min = 0, max = 101) {
+    return (
+      typeof data[color] === "number" &&
+      data[color] >= min &&
+      data[color] <= max
+    )
+  }
 
   get packetId() {
     return this.props.packetId

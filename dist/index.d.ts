@@ -130,8 +130,11 @@ declare abstract class Output {
     private _updateInterval;
     constructor(props: Output.Props);
     protected get remoteSystem(): LoxoneRemoteSystem;
+    abstract setValueFromString(value: string): this;
+    abstract isTypeValid(value: any): boolean;
     abstract setValue(value: LoxoneOutput.TypeFromValue): this;
     abstract getValue(): LoxoneOutput.TypeFromValue;
+    protected isValidRange<T extends Record<string, any>>(data: T, color: keyof T, min?: number, max?: number): boolean;
     get packetId(): string;
     private updateInterval;
     setInterval(time: number): this;
@@ -146,30 +149,40 @@ declare namespace Output {
 
 declare class AnalogOutput extends Output {
     private value;
+    setValueFromString(value: string): this;
+    isTypeValid(value: any): boolean;
     setValue(value: number): this;
     getValue(): number;
 }
 
 declare class DigitalOutput extends Output {
     private value;
+    setValueFromString(value: string): this;
+    isTypeValid(value: any): value is boolean;
     setValue(value: boolean): this;
     getValue(): boolean;
 }
 
 declare class T5Output extends Output {
     private value;
+    setValueFromString(value: string): this;
+    isTypeValid(value: any): any;
     setValue(button: T5Payload.ButtonPressed): this;
     getValue(): T5Payload.Type;
 }
 
 declare class TextOutput extends Output {
     private value;
+    setValueFromString(value: string): this;
+    isTypeValid(value: any): value is string;
     setValue(value: string): this;
     getValue(): string;
 }
 
 declare class SmartRGBWOutput extends Output {
     private value;
+    setValueFromString(value: string): this;
+    isTypeValid(value: any): boolean;
     setPartial(props: Partial<SmartRGBWPayload.Type>): this;
     setValue(props: SmartRGBWPayload.Type): this;
     getValue(): SmartRGBWPayload.Type;
@@ -177,6 +190,8 @@ declare class SmartRGBWOutput extends Output {
 
 declare class SmartActuatorSingleChannelOutput extends Output {
     private value;
+    setValueFromString(value: string): this;
+    isTypeValid(value: any): boolean;
     setPartial(props: Partial<SmartActuatorSingleChannelPayload.Type>): this;
     setValue(props: SmartActuatorSingleChannelPayload.Type): this;
     getValue(): SmartActuatorSingleChannelPayload.Type;
@@ -326,4 +341,17 @@ declare namespace LoxoneServer {
     };
 }
 
-export { AnalogOutput, DATA_TYPE, DigitalOutput, LoxoneServer, SmartActuatorSingleChannelOutput, SmartRGBWOutput, T5Output, TextOutput };
+declare class OutputTypeError extends Error {
+    readonly output: Output;
+    readonly value: any;
+    constructor(output: Output, value: any);
+}
+
+declare class BufferPacket extends LoxoneUDPPacket {
+    readonly buffer: Buffer;
+    constructor(buffer: Buffer);
+    get controlByte(): number;
+    toBuffer(): Buffer;
+}
+
+export { AnalogOutput, BufferPacket, DATA_TYPE, DigitalOutput, LoxoneIOPacket, LoxoneInput, LoxoneOutput, LoxoneRemoteSystem, LoxoneServer, LoxoneUDPPacket, OutputTypeError, SmartActuatorSingleChannelOutput, SmartRGBWOutput, T5Output, TextOutput };

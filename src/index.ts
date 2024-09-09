@@ -1,6 +1,13 @@
 export { LoxoneServer } from "./LoxoneServer"
+export { LoxoneRemoteSystem } from "./LoxoneRemoteSystem"
 export { DATA_TYPE } from "./packet/DataType"
+export { OutputTypeError } from "./error/OutputTypeError"
 
+export { LoxoneIOPacket } from "./packet/LoxoneIOPacket"
+export { LoxoneInput } from "./packet/LoxoneInput"
+export { LoxoneOutput } from "./packet/LoxoneOutput"
+export { LoxoneUDPPacket } from "./packet/LoxoneUDPPacket"
+export { BufferPacket } from "./packet/BufferPacket"
 export { AnalogOutput } from "./output/AnalogOutput"
 export { DigitalOutput } from "./output/DigitalOutput"
 export { T5Output } from "./output/T5Output"

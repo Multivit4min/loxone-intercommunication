@@ -314,6 +314,15 @@ var LoxoneOutput = class _LoxoneOutput extends LoxoneIOPacket {
   }
 };
 
+// src/error/OutputTypeError.ts
+var OutputTypeError = class extends Error {
+  constructor(output, value) {
+    super(`invalid output type provided for packetId ${output.packetId} with value ${value} (type: ${typeof value})`);
+    this.output = output;
+    this.value = value;
+  }
+};
+
 // src/output/Output.ts
 var Output = class {
   constructor(props) {
@@ -323,6 +332,9 @@ var Output = class {
   }
   get remoteSystem() {
     return this.props.remoteSystem;
+  }
+  isValidRange(data, color, min = 0, max = 101) {
+    return typeof data[color] === "number" && data[color] >= min && data[color] <= max;
   }
   get packetId() {
     return this.props.packetId;
@@ -348,7 +360,14 @@ var AnalogOutput = class extends Output {
     super(...arguments);
     this.value = 0;
   }
+  setValueFromString(value) {
+    return this.setValue(parseFloat(value));
+  }
+  isTypeValid(value) {
+    return typeof value === "number" && !isFinite(value) && !isNaN(value);
+  }
   setValue(value) {
+    if (!this.isTypeValid(value)) throw new OutputTypeError(this, value);
     this.value = value;
     this.send();
     return this;
@@ -364,7 +383,14 @@ var DigitalOutput = class extends Output {
     super(...arguments);
     this.value = false;
   }
+  setValueFromString(value) {
+    return this.setValue(value.toLowerCase() === "true");
+  }
+  isTypeValid(value) {
+    return typeof value === "boolean";
+  }
   setValue(value) {
+    if (!this.isTypeValid(value)) throw new OutputTypeError(this, value);
     this.value = Boolean(value);
     this.send();
     return this;
@@ -380,7 +406,14 @@ var T5Output = class extends Output {
     super(...arguments);
     this.value = { button: T5Payload.ButtonPressed.NONE };
   }
+  setValueFromString(value) {
+    return this.setValue(JSON.parse(value));
+  }
+  isTypeValid(value) {
+    return typeof value === "object" && typeof value !== null && value["button"] && typeof value["button"] === "number";
+  }
   setValue(button) {
+    if (!this.isTypeValid({ button })) throw new OutputTypeError(this, { button });
     this.value = { button };
     this.send();
     return this;
@@ -396,7 +429,14 @@ var TextOutput = class extends Output {
     super(...arguments);
     this.value = "";
   }
+  setValueFromString(value) {
+    return this.setValue(value);
+  }
+  isTypeValid(value) {
+    return typeof value === "string";
+  }
   setValue(value) {
+    if (!this.isTypeValid(value)) throw new OutputTypeError(this, value);
     this.value = value;
     this.send();
     return this;
@@ -419,11 +459,19 @@ var SmartRGBWOutput = class extends Output {
       bits: 0
     };
   }
+  setValueFromString(value) {
+    return this.setValue(JSON.parse(value));
+  }
+  isTypeValid(value) {
+    return typeof value === "object" && value !== null && this.isValidRange(value, "red") && this.isValidRange(value, "green") && this.isValidRange(value, "blue") && this.isValidRange(value, "white") && this.isValidRange(value, "fadeTime", 0, 65535) && this.isValidRange(value, "bits", 0, 65535);
+  }
   setPartial(props) {
+    if (!this.isTypeValid(props)) throw new OutputTypeError(this, props);
     this.setValue(__spreadValues(__spreadValues({}, this.value), props));
     return this;
   }
   setValue(props) {
+    if (!this.isTypeValid(props)) throw new OutputTypeError(this, props);
     this.value = __spreadValues({}, props);
     this.send();
     return this;
@@ -442,11 +490,17 @@ var SmartActuatorSingleChannelOutput = class extends Output {
       fadeTime: 0.2
     };
   }
+  setValueFromString(value) {
+    return this.setValue(JSON.parse(value));
+  }
+  isTypeValid(value) {
+    return typeof value === "object" && value !== null && this.isValidRange(value, "channel") && this.isValidRange(value, "fadeTime", 0, 65535);
+  }
   setPartial(props) {
-    this.setValue(__spreadValues(__spreadValues({}, this.value), props));
-    return this;
+    return this.setValue(__spreadValues(__spreadValues({}, this.value), props));
   }
   setValue(props) {
+    if (!this.isTypeValid(props)) throw new OutputTypeError(this, props);
     this.value = __spreadValues({}, props);
     this.send();
     return this;
@@ -680,11 +734,32 @@ var LoxoneServer = class _LoxoneServer extends EventEmitter2 {
     }
   }
 };
+
+// src/packet/BufferPacket.ts
+var BufferPacket = class extends LoxoneUDPPacket {
+  constructor(buffer) {
+    super();
+    this.buffer = buffer;
+  }
+  get controlByte() {
+    return this.buffer.readUint8(0);
+  }
+  toBuffer() {
+    return this.buffer;
+  }
+};
 export {
   AnalogOutput,
+  BufferPacket,
   DATA_TYPE,
   DigitalOutput,
+  LoxoneIOPacket,
+  LoxoneInput,
+  LoxoneOutput,
+  LoxoneRemoteSystem,
   LoxoneServer,
+  LoxoneUDPPacket,
+  OutputTypeError,
   SmartActuatorSingleChannelOutput,
   SmartRGBWOutput,
   T5Output,
