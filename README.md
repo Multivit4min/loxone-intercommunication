@@ -1,86 +1,49 @@
-Receive
+Loxone Intercommunication
+=========================
 
-IO Data First Byte 0x9e
------------------------
-
-```
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
-9e 00 00 00 00 00 00 00 73 65 72 76 65 72 00 00 00 72 65 6d 6f 74 65 00 00 00 61 6e 61 6c 6f 67 00 00 00 08 00 01 00 00 00 20 d2 6f f0 bf>
-                        0  1  2  3  4  5  6  7     0  1  2  3  4  5  6  7     0  1  2  3  4  5  6  7  8  |  |  |  P  A  Y  L  O  A  D  ->
-                        own id                     target id                  packet-id                  len p |
-                                                                                                              type
-``` 
-
-General Data Encoding is in Little Endian format
-
-Byte 0-7 Unknown
-----------------
-`Byte 0` seems always to be `9e`
+This Library aims to provide a Interface which can communicate with a Loxone Miniserver over its integrated Loxone Intercommunication Interface, this allows to easy create Inputs and Outputs to send data between Loxone and your NodeJS Application.
 
 
-Byte 8-15 Own ID
-----------------
-Id which is being defined in Network Intercommunication inside the Loxone Config under `Own ID`
-
-
-Byte 16 Unknown
----------------
-Always `0` ?
-
-
-Byte 17-24 Target ID
---------------------
-Target Id which is defined when creating a remote system under `ID of the Remote System`
-
-
-Byte 25 Unknown
----------------
-Always `0` ?
-
-
-Byte 26-34 Packet ID
---------------------
-Packet Id which is defined when creating an output on the remote system
-
-
-Byte 35+36? Data Length
--------------------
-Length of Data Content in `UINT8` or `UINT16` Format
-
-Byte 37 Data Type
------------------
-Data Type of the defined output
-UINT8?
+Example
+=======
 
 ```typescript
-export enum DATA_TYPE {
-  DIGITAL = 0x00,
-  ANALOG = 0x01,
-  TEXT = 0x02,
-  T5 = 0x03,
-  SmartActuatorRGBW = 0x04
-  //Smart Actuator Single Channel = 0x05
-  //Smart Actuator Tunable White = 0x06
-}
-```
+import { LoxoneServer } from "./src/LoxoneServer"
+import { DATA_TYPE } from "./src/packet/DataType"
 
-Byte 38+n
----------
-Data Payload
+//create a instance with an id which is able to receive data
+const server = new LoxoneServer({ ownId: "remote" })
 
+//this will enable udp data to be received on port 61263 (default port for loxone miniservers)
+//this is also optional, there is no need to bind any port if you do not need to receive data
+server.bind(61263)
 
+//creates a remote system to send data to another miniserver
+const remote = server.createRemoteSystem({
+  remoteId: "server",
+  address: "192.168.1.100",
+  port: 61263
+})
 
+//creates new sendable outputs
+//creates a new output which is able to send numeric values
+const output = remote.createOutput("foo", DATA_TYPE.ANALOG)
+//creates a new output which is able to send bool values
+const cyclic = remote.createOutput("cyclic", DATA_TYPE.DIGITAL)
 
-Unknown Data First Byte 0x8d
-----------------------------
+//send output once and by default the output will be repeateadly sent every 10 seconds
+//as soon as set value has been called the output will be sent to the miniserver
+cyclic.setValue(true)
 
-Is being sent cyclic in 7 minute intervals
+//update the output every second
+let i = 0
+setInterval(() => output.setValue(i++), 1000)
 
-```
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
-8d 00 00 00 eb 23 a2 94 73 65 72 76 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64
-8d 00 00 00 eb 23 a2 94 73 65 72 76 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64
-8d 00 00 00 eb 23 a2 94 73 65 72 76 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64
-                        0  1  2  3  4  5  6  7
-                        loxone miniserver name
+//receive data from the loxone miniserver
+server.on("input", ({ packet }) => {
+  let { value } = packet.payload
+  if (typeof value === "object") value = JSON.stringify(value)
+  console.log(`Receive packet id "${packet.packetId}" with type ${DATA_TYPE[packet.type]} and value ${value}`)
+})
+
 ```
