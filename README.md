@@ -13,8 +13,7 @@ Example
 -------
 
 ```typescript
-import { LoxoneServer } from "./src/LoxoneServer"
-import { DATA_TYPE } from "./src/packet/DataType"
+import { LoxoneServer, DATA_TYPE } from "loxone-ici"
 
 //create a instance with an id which is able to receive data
 const server = new LoxoneServer({ ownId: "remote" })
@@ -50,5 +49,4 @@ server.on("input", ({ packet }) => {
   if (typeof value === "object") value = JSON.stringify(value)
   console.log(`Receive packet id "${packet.packetId}" with type ${DATA_TYPE[packet.type]} and value ${value}`)
 })
-
 ```
