@@ -244,6 +244,19 @@ declare class LoxoneRemoteSystem extends EventEmitter {
     createOutput(packetId: string, type: DATA_TYPE.T5): T5Output;
     createOutput(packetId: string, type: DATA_TYPE): Output;
     /**
+     * sends the data without maintaining a cyclic interval sending
+     * @param packetId name of the output
+     * @param type type of the output
+     */
+    sendOnce(packetId: string, type: DATA_TYPE.DIGITAL): DigitalOutput;
+    sendOnce(packetId: string, type: DATA_TYPE.ANALOG): AnalogOutput;
+    sendOnce(packetId: string, type: DATA_TYPE.TEXT): TextOutput;
+    sendOnce(packetId: string, type: DATA_TYPE.T5): T5Output;
+    sendOnce(packetId: string, type: DATA_TYPE.SmartActuatorRGBW): SmartRGBWOutput;
+    sendOnce(packetId: string, type: DATA_TYPE.SmartActuatorSingleChannel): SmartActuatorSingleChannelOutput;
+    sendOnce(packetId: string, type: DATA_TYPE.T5): T5Output;
+    sendOnce(packetId: string, type: DATA_TYPE): Output;
+    /**
      * creates the instance object of the output
      * @param packetId name of the output
      * @param type type of the output

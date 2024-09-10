@@ -615,6 +615,11 @@ var LoxoneRemoteSystem = class extends import_stream.EventEmitter {
     this.outputs.push(output);
     return output;
   }
+  sendOnce(packetId, type) {
+    let output = this.findOutput(packetId);
+    if (output) return output;
+    return this.createOutputInstance(packetId, type);
+  }
   /**
    * creates the instance object of the output
    * @param packetId name of the output

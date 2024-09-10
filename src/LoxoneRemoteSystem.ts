@@ -92,6 +92,25 @@ export class LoxoneRemoteSystem extends EventEmitter {
   }
 
   /**
+   * sends the data without maintaining a cyclic interval sending
+   * @param packetId name of the output
+   * @param type type of the output
+   */
+  sendOnce(packetId: string, type: DATA_TYPE.DIGITAL): DigitalOutput
+  sendOnce(packetId: string, type: DATA_TYPE.ANALOG): AnalogOutput
+  sendOnce(packetId: string, type: DATA_TYPE.TEXT): TextOutput
+  sendOnce(packetId: string, type: DATA_TYPE.T5): T5Output
+  sendOnce(packetId: string, type: DATA_TYPE.SmartActuatorRGBW): SmartRGBWOutput
+  sendOnce(packetId: string, type: DATA_TYPE.SmartActuatorSingleChannel): SmartActuatorSingleChannelOutput
+  sendOnce(packetId: string, type: DATA_TYPE.T5): T5Output
+  sendOnce(packetId: string, type: DATA_TYPE): Output
+  sendOnce(packetId: string, type: DATA_TYPE) {
+    let output = this.findOutput(packetId)
+    if (output) return output
+    return this.createOutputInstance(packetId, type)
+  }
+
+  /**
    * creates the instance object of the output
    * @param packetId name of the output
    * @param type type of the output
@@ -108,6 +127,7 @@ export class LoxoneRemoteSystem extends EventEmitter {
       default: throw new Error(`can not create output ${type} is not implemented`)
     }
   }
+
 
   /**
    * sends the output to the miniserver
