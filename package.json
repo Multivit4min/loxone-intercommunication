@@ -1,5 +1,5 @@
 {
-  "name": "loxone-intercommunication",
+  "name": "loxone-ici",
   "version": "0.0.1",
   "description": "",
   "main": "./dist/index.js",
