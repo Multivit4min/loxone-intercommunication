@@ -1,10 +1,18 @@
 {
   "name": "loxone-ici",
   "version": "0.0.1",
-  "description": "",
+  "description": "Connect to your Loxone via the Loxone intercommunication Interface",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/Multivit4min/loxone-intercommunication",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Multivit4min/loxone-intercommunication.git"
+  },
+  "keywords": [
+    "loxone"
+  ],
   "files": [
       "dist"
    ],
