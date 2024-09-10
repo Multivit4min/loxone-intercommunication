@@ -3,9 +3,14 @@ Loxone Intercommunication
 
 This Library aims to provide a Interface which can communicate with a Loxone Miniserver over its integrated Loxone Intercommunication Interface, this allows to easy create Inputs and Outputs to send data between Loxone and your NodeJS Application.
 
+Limitations
+-----------
+
+`ownId` `remoteId` and `packetId` has a character limitation of a maximum of **8** chars
+
 
 Example
-=======
+-------
 
 ```typescript
 import { LoxoneServer } from "./src/LoxoneServer"
