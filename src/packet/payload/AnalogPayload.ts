@@ -2,7 +2,7 @@ import { Payload } from "./Payload"
 
 export class AnalogPayload extends Payload {
 
-  get value() {
+  get value(): AnalogPayload.Type {
     return this.buffer.readDoubleLE(0)
   }
 
@@ -12,4 +12,8 @@ export class AnalogPayload extends Payload {
     return buffer
   }
 
+}
+
+export namespace AnalogPayload {
+  export type Type = number
 }

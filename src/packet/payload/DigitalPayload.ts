@@ -2,7 +2,7 @@ import { Payload } from "./Payload"
 
 export class DigitalPayload extends Payload {
 
-  get value() {
+  get value(): DigitalPayload.Type {
     return Boolean(this.buffer.readUInt8(0))
   }
 
@@ -11,4 +11,8 @@ export class DigitalPayload extends Payload {
     buffer.writeUint8(value ? 1 : 0)
     return buffer
   }
+}
+
+export namespace DigitalPayload {
+  export type Type = boolean
 }

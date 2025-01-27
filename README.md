@@ -43,7 +43,12 @@ cyclic.setValue(true)
 let i = 0
 setInterval(() => output.setValue(i++), 1000)
 
-//receive data from the loxone miniserver
+//receive an input from the loxone miniserver
+server.inputListener("pwrSrv").analog(value => {
+  console.log("pwrSrv", value, "W")
+})
+
+//alternative
 server.on("input", ({ packet }) => {
   let { value } = packet.payload
   if (typeof value === "object") value = JSON.stringify(value)

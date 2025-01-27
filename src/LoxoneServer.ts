@@ -3,6 +3,7 @@ import { EventEmitter } from "stream"
 import { LoxoneUDPPacket } from "./packet/LoxoneUDPPacket"
 import { LoxoneRemoteSystem } from "./LoxoneRemoteSystem"
 import { LoxoneInput } from "./packet/LoxoneInput"
+import { LoxoneInputListener } from "./util/LoxoneInputListener"
 
 
 export interface LoxoneServer extends EventEmitter {
@@ -21,6 +22,7 @@ export interface LoxoneServer extends EventEmitter {
 export class LoxoneServer extends EventEmitter {
 
   readonly server = dgram.createSocket("udp4")
+  private inputs: LoxoneInputListener[] = []
 
   constructor(readonly props: LoxoneServer.Props = {}) {
     super()
@@ -28,7 +30,11 @@ export class LoxoneServer extends EventEmitter {
       const packet = LoxoneServer.packetFromBuffer(buffer)
       if (!packet) return
       this.emit("data", { rinfo, packet })
-      if (packet instanceof LoxoneInput) this.emit("input", { rinfo, packet })
+      if (packet instanceof LoxoneInput) {
+        this.emit("input", { rinfo, packet })
+        this.inputs.filter(i => i.match(packet.packetId)).forEach(i => i.receive(packet))
+        //if (this.inputs[packet.packetId]) this.inputs[packet.packetId].receive(packet)
+      }
     })
   }
 
@@ -47,6 +53,18 @@ export class LoxoneServer extends EventEmitter {
    */
   createRemoteSystem(props: Omit<LoxoneRemoteSystem.Props, "server">) {
     return new LoxoneRemoteSystem({ ...props, server: this })
+  }
+
+  /**
+   * creates a new input listener
+   */
+  inputListener(id: string): LoxoneInputListener {
+    let listener = this.inputs.find(i => i.matchExact(id))
+    if (!listener) {
+      listener = new LoxoneInputListener(id)
+      this.inputs.push(listener)
+    }
+    return listener
   }
 
   /**

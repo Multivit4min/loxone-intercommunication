@@ -65,8 +65,8 @@ var __async = (__this, __arguments, generator) => {
 };
 
 // src/index.ts
-var src_exports = {};
-__export(src_exports, {
+var index_exports = {};
+__export(index_exports, {
   AnalogOutput: () => AnalogOutput,
   BufferPacket: () => BufferPacket,
   DATA_TYPE: () => DATA_TYPE,
@@ -83,7 +83,7 @@ __export(src_exports, {
   T5Output: () => T5Output,
   TextOutput: () => TextOutput
 });
-module.exports = __toCommonJS(src_exports);
+module.exports = __toCommonJS(index_exports);
 
 // src/LoxoneServer.ts
 var import_dgram2 = __toESM(require("dgram"));
@@ -182,7 +182,9 @@ var SmartActuatorSingleChannelPayload = class extends Payload {
 // src/packet/payload/SmartActuatorTunableWhitePayload.ts
 var SmartActuatorTunableWhitePayload = class extends Payload {
   get value() {
-    return this.buffer;
+    return {
+      buffer: this.buffer
+    };
   }
   static bufferFromValue(data) {
     const buffer = Buffer.alloc(8);
@@ -729,17 +731,90 @@ var LoxoneInput = class extends LoxoneIOPacket {
   }
 };
 
+// src/util/LoxoneInputListener.ts
+var LoxoneInputListener = class {
+  constructor(id) {
+    this.id = id;
+    this.listeners = {
+      digital: [],
+      analog: [],
+      text: [],
+      t5: [],
+      smartRgbw: [],
+      smartActuatorSingleChannel: [],
+      smartActuatorTunableWhite: []
+    };
+  }
+  addListener(key, cb) {
+    return this.listeners[key].push(cb);
+  }
+  execListener(key, value) {
+    this.listeners[key].forEach((cb) => cb(value));
+  }
+  digital(cb) {
+    return this.addListener("digital", cb);
+  }
+  analog(cb) {
+    return this.addListener("analog", cb);
+  }
+  text(cb) {
+    return this.addListener("text", cb);
+  }
+  smartRgbw(cb) {
+    return this.addListener("smartRgbw", cb);
+  }
+  smartActuatorSingleChannel(cb) {
+    return this.addListener("smartActuatorSingleChannel", cb);
+  }
+  smartActuatorTunableWhite(cb) {
+    return this.addListener("smartActuatorSingleChannel", cb);
+  }
+  receive({ type, payload }) {
+    switch (type) {
+      case 1 /* ANALOG */:
+        return this.execListener("analog", payload.value);
+      case 0 /* DIGITAL */:
+        return this.execListener("digital", payload.value);
+      case 2 /* TEXT */:
+        return this.execListener("text", payload.value);
+      case 3 /* T5 */:
+        return this.execListener("t5", payload.value);
+      case 4 /* SmartActuatorRGBW */:
+        return this.execListener("smartRgbw", payload.value);
+      case 5 /* SmartActuatorSingleChannel */:
+        return this.execListener("smartActuatorSingleChannel", payload.value);
+      case 6 /* SmartActuatorTunableWhite */:
+        return this.execListener("smartActuatorTunableWhite", payload.value);
+    }
+  }
+  /** checks if the input is exactly the same (type and regex) as the set id */
+  matchExact(id) {
+    if (typeof id === "string") return id === this.id;
+    if (!(id instanceof RegExp) || !(this.id instanceof RegExp)) return false;
+    return id.toString() === this.id.toString();
+  }
+  /** validates and checks if the input matches the id of the input listener */
+  match(id) {
+    if (this.id instanceof RegExp) return this.id.test(id);
+    return this.id === id;
+  }
+};
+
 // src/LoxoneServer.ts
 var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
   constructor(props = {}) {
     super();
     this.props = props;
     this.server = import_dgram2.default.createSocket("udp4");
+    this.inputs = [];
     this.server.on("message", (buffer, rinfo) => {
       const packet = _LoxoneServer.packetFromBuffer(buffer);
       if (!packet) return;
       this.emit("data", { rinfo, packet });
-      if (packet instanceof LoxoneInput) this.emit("input", { rinfo, packet });
+      if (packet instanceof LoxoneInput) {
+        this.emit("input", { rinfo, packet });
+        this.inputs.filter((i) => i.match(packet.packetId)).forEach((i) => i.receive(packet));
+      }
     });
   }
   /**
@@ -756,6 +831,17 @@ var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
    */
   createRemoteSystem(props) {
     return new LoxoneRemoteSystem(__spreadProps(__spreadValues({}, props), { server: this }));
+  }
+  /**
+   * creates a new input listener
+   */
+  inputListener(id) {
+    let listener = this.inputs.find((i) => i.matchExact(id));
+    if (!listener) {
+      listener = new LoxoneInputListener(id);
+      this.inputs.push(listener);
+    }
+    return listener;
   }
   /**
    * listens to the specified port and optional bind address

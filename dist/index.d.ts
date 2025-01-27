@@ -30,7 +30,7 @@ declare class SmartActuatorSingleChannelPayload extends Payload {
     get channel(): number;
     get fadeTime(): number;
     get value(): SmartActuatorSingleChannelPayload.Type;
-    static bufferFromValue(data: SmartActuatorSingleChannelPayload.Type): Buffer;
+    static bufferFromValue(data: SmartActuatorSingleChannelPayload.Type): Buffer<ArrayBuffer>;
 }
 declare namespace SmartActuatorSingleChannelPayload {
     type Type = {
@@ -47,7 +47,7 @@ declare class SmartRGBWPayload extends Payload {
     get fadeTime(): number;
     get bits(): number;
     get value(): SmartRGBWPayload.Type;
-    static bufferFromValue(data: SmartRGBWPayload.Type): Buffer;
+    static bufferFromValue(data: SmartRGBWPayload.Type): Buffer<ArrayBuffer>;
 }
 declare namespace SmartRGBWPayload {
     type Type = {
@@ -62,7 +62,7 @@ declare namespace SmartRGBWPayload {
 
 declare class T5Payload extends Payload {
     get value(): T5Payload.Type;
-    static bufferFromValue({ button }: T5Payload.Type): Buffer;
+    static bufferFromValue({ button }: T5Payload.Type): Buffer<ArrayBuffer>;
 }
 declare namespace T5Payload {
     type Type = {
@@ -89,9 +89,9 @@ declare class LoxoneOutput extends LoxoneIOPacket {
     constructor(props: LoxoneOutput.Props);
     get payloadLength(): number;
     get payload(): Payload;
-    toBuffer(): Buffer;
+    toBuffer(): Buffer<ArrayBuffer>;
     private createPayload;
-    static createPayloadBuffer({ type, value }: LoxoneOutput.PayloadDataType): Buffer;
+    static createPayloadBuffer({ type, value }: LoxoneOutput.PayloadDataType): Buffer<ArrayBuffer>;
     static getTypeDataFromValue(value: LoxoneOutput.TypeFromValue): LoxoneOutput.PayloadDataType;
 }
 declare namespace LoxoneOutput {
@@ -296,8 +296,57 @@ declare class LoxoneInput extends LoxoneIOPacket {
     get type(): number;
     private get payloadBuffer();
     get payload(): Payload;
-    toBuffer(): Buffer;
+    toBuffer(): Buffer<ArrayBuffer>;
     private createPayload;
+}
+
+declare class SmartActuatorTunableWhitePayload extends Payload {
+    get value(): SmartActuatorTunableWhitePayload.Type;
+    static bufferFromValue(data: Buffer): Buffer<ArrayBuffer>;
+}
+declare namespace SmartActuatorTunableWhitePayload {
+    type Type = {
+        buffer: Buffer;
+    };
+}
+
+declare class LoxoneInputListener {
+    readonly id: string | RegExp;
+    private listeners;
+    constructor(id: string | RegExp);
+    private addListener;
+    private execListener;
+    digital(cb: LoxoneInputListener.DigitalCallbackHandler): number;
+    analog(cb: LoxoneInputListener.AnalogCallbackHandler): number;
+    text(cb: LoxoneInputListener.TextCallbackHandler): number;
+    smartRgbw(cb: LoxoneInputListener.SmartRGBWCallbackHandler): number;
+    smartActuatorSingleChannel(cb: LoxoneInputListener.SmartActuatorSingleChannelCallbackHandler): number;
+    smartActuatorTunableWhite(cb: LoxoneInputListener.SmartActuatorSingleChannelCallbackHandler): number;
+    receive({ type, payload }: LoxoneInput): void;
+    /** checks if the input is exactly the same (type and regex) as the set id */
+    matchExact(id: string | RegExp): boolean;
+    /** validates and checks if the input matches the id of the input listener */
+    match(id: string): boolean;
+}
+declare namespace LoxoneInputListener {
+    type ListenerDict = {
+        digital: DigitalCallbackHandler[];
+        analog: AnalogCallbackHandler[];
+        text: TextCallbackHandler[];
+        t5: T5CallbackHandler[];
+        smartRgbw: SmartRGBWCallbackHandler[];
+        smartActuatorSingleChannel: SmartActuatorSingleChannelCallbackHandler[];
+        smartActuatorTunableWhite: SmartActuatorTunableWhiteCallbackHandler[];
+    };
+    type CallbackHandler<T> = (value: T) => void;
+    type DigitalCallbackHandler = CallbackHandler<boolean>;
+    type AnalogCallbackHandler = CallbackHandler<number>;
+    type TextCallbackHandler = CallbackHandler<string>;
+    type T5CallbackHandler = CallbackHandler<T5Payload.Type>;
+    type SmartRGBWCallbackHandler = CallbackHandler<SmartRGBWPayload.Type>;
+    type SmartActuatorSingleChannelCallbackHandler = CallbackHandler<SmartActuatorSingleChannelPayload.Type>;
+    type SmartActuatorTunableWhiteCallbackHandler = CallbackHandler<SmartActuatorTunableWhitePayload.Type>;
+    type Unpack<T> = T extends (infer U)[] ? U : T;
 }
 
 interface LoxoneServer extends EventEmitter {
@@ -314,6 +363,7 @@ interface LoxoneServer extends EventEmitter {
 declare class LoxoneServer extends EventEmitter {
     readonly props: LoxoneServer.Props;
     readonly server: dgram.Socket;
+    private inputs;
     constructor(props?: LoxoneServer.Props);
     /**
      * ownId which is being sent to the miniserver for identification purposes
@@ -326,6 +376,10 @@ declare class LoxoneServer extends EventEmitter {
      * @returns
      */
     createRemoteSystem(props: Omit<LoxoneRemoteSystem.Props, "server">): LoxoneRemoteSystem;
+    /**
+     * creates a new input listener
+     */
+    inputListener(id: string): LoxoneInputListener;
     /**
      * listens to the specified port and optional bind address
      * @param port port to listen to
@@ -364,7 +418,7 @@ declare class BufferPacket extends LoxoneUDPPacket {
     readonly buffer: Buffer;
     constructor(buffer: Buffer);
     get controlByte(): number;
-    toBuffer(): Buffer;
+    toBuffer(): Buffer<ArrayBufferLike>;
 }
 
 export { AnalogOutput, BufferPacket, DATA_TYPE, DigitalOutput, LoxoneIOPacket, LoxoneInput, LoxoneOutput, LoxoneRemoteSystem, LoxoneServer, LoxoneUDPPacket, OutputTypeError, SmartActuatorSingleChannelOutput, SmartRGBWOutput, T5Output, TextOutput };

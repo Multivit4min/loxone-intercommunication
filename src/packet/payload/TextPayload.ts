@@ -11,3 +11,7 @@ export class TextPayload extends Payload {
   }
 
 }
+
+export namespace TextPayload {
+  export type Type = string
+}
