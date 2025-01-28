@@ -17,6 +17,8 @@ export class LoxoneInputListener {
     smartActuatorTunableWhite: []
   }
 
+  private lastValue: any
+
   constructor(readonly id: string|RegExp) {
   }
 
@@ -57,14 +59,17 @@ export class LoxoneInputListener {
   }
 
   receive({ type, payload }: LoxoneInput) {
+    const value = payload.value
+    if (value === this.lastValue) return
+    this.lastValue = value
     switch (type) {
-      case DATA_TYPE.ANALOG: return this.execListener("analog", payload.value)
-      case DATA_TYPE.DIGITAL: return this.execListener("digital", payload.value)
-      case DATA_TYPE.TEXT: return this.execListener("text", payload.value)
-      case DATA_TYPE.T5: return this.execListener("t5", payload.value)
-      case DATA_TYPE.SmartActuatorRGBW: return this.execListener("smartRgbw", payload.value)
-      case DATA_TYPE.SmartActuatorSingleChannel: return this.execListener("smartActuatorSingleChannel", payload.value)
-      case DATA_TYPE.SmartActuatorTunableWhite: return this.execListener("smartActuatorTunableWhite", payload.value)
+      case DATA_TYPE.ANALOG: return this.execListener("analog", value)
+      case DATA_TYPE.DIGITAL: return this.execListener("digital", value)
+      case DATA_TYPE.TEXT: return this.execListener("text", value)
+      case DATA_TYPE.T5: return this.execListener("t5", value)
+      case DATA_TYPE.SmartActuatorRGBW: return this.execListener("smartRgbw", value)
+      case DATA_TYPE.SmartActuatorSingleChannel: return this.execListener("smartActuatorSingleChannel", value)
+      case DATA_TYPE.SmartActuatorTunableWhite: return this.execListener("smartActuatorTunableWhite", value)
     }
   }
 
