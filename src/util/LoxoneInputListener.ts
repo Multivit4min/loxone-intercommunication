@@ -9,6 +9,8 @@ export class LoxoneInputListener {
 
   private listeners: LoxoneInputListener.ListenerDict = {
     digital: [],
+    risingEdge: [],
+    fallingEdge: [],
     analog: [],
     text: [],
     t5: [],
@@ -38,6 +40,14 @@ export class LoxoneInputListener {
     return this.addListener("digital", cb)
   }
 
+  risingEdge(cb: LoxoneInputListener.DigitalCallbackHandler) {
+    return this.addListener("risingEdge", cb)
+  }
+
+  fallingEdge(cb: LoxoneInputListener.DigitalCallbackHandler) {
+    return this.addListener("fallingEdge", cb)
+  }
+
   analog(cb: LoxoneInputListener.AnalogCallbackHandler) {
     return this.addListener("analog", cb)
   }
@@ -64,7 +74,9 @@ export class LoxoneInputListener {
     this.lastValue = value
     switch (type) {
       case DATA_TYPE.ANALOG: return this.execListener("analog", value)
-      case DATA_TYPE.DIGITAL: return this.execListener("digital", value)
+      case DATA_TYPE.DIGITAL: 
+        this.execListener(value ? "risingEdge" : "fallingEdge", null)
+        return this.execListener("digital", value)
       case DATA_TYPE.TEXT: return this.execListener("text", value)
       case DATA_TYPE.T5: return this.execListener("t5", value)
       case DATA_TYPE.SmartActuatorRGBW: return this.execListener("smartRgbw", value)
@@ -91,6 +103,8 @@ export namespace LoxoneInputListener {
 
   export type ListenerDict = {
     digital: DigitalCallbackHandler[]
+    risingEdge: DigitalCallbackHandler[]
+    fallingEdge: DigitalCallbackHandler[]
     analog: AnalogCallbackHandler[]
     text: TextCallbackHandler[]
     t5: T5CallbackHandler[]
@@ -98,7 +112,7 @@ export namespace LoxoneInputListener {
     smartActuatorSingleChannel: SmartActuatorSingleChannelCallbackHandler[]
     smartActuatorTunableWhite: SmartActuatorTunableWhiteCallbackHandler[]
   }
-
+  
   export type CallbackHandler<T> = (value: T) => void
   export type DigitalCallbackHandler = CallbackHandler<boolean>
   export type AnalogCallbackHandler = CallbackHandler<number>

@@ -313,6 +313,7 @@ declare namespace SmartActuatorTunableWhitePayload {
 declare class LoxoneInputListener {
     readonly id: string | RegExp;
     private listeners;
+    private lastValue;
     constructor(id: string | RegExp);
     private addListener;
     private execListener;

@@ -723,21 +723,24 @@ var LoxoneInputListener = class {
     return this.addListener("smartActuatorSingleChannel", cb);
   }
   receive({ type, payload }) {
+    const value = payload.value;
+    if (value === this.lastValue) return;
+    this.lastValue = value;
     switch (type) {
       case 1 /* ANALOG */:
-        return this.execListener("analog", payload.value);
+        return this.execListener("analog", value);
       case 0 /* DIGITAL */:
-        return this.execListener("digital", payload.value);
+        return this.execListener("digital", value);
       case 2 /* TEXT */:
-        return this.execListener("text", payload.value);
+        return this.execListener("text", value);
       case 3 /* T5 */:
-        return this.execListener("t5", payload.value);
+        return this.execListener("t5", value);
       case 4 /* SmartActuatorRGBW */:
-        return this.execListener("smartRgbw", payload.value);
+        return this.execListener("smartRgbw", value);
       case 5 /* SmartActuatorSingleChannel */:
-        return this.execListener("smartActuatorSingleChannel", payload.value);
+        return this.execListener("smartActuatorSingleChannel", value);
       case 6 /* SmartActuatorTunableWhite */:
-        return this.execListener("smartActuatorTunableWhite", payload.value);
+        return this.execListener("smartActuatorTunableWhite", value);
     }
   }
   /** checks if the input is exactly the same (type and regex) as the set id */

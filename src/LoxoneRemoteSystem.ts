@@ -81,7 +81,6 @@ export class LoxoneRemoteSystem extends EventEmitter {
   createOutput(packetId: string, type: DATA_TYPE.T5): T5Output
   createOutput(packetId: string, type: DATA_TYPE.SmartActuatorRGBW): SmartRGBWOutput
   createOutput(packetId: string, type: DATA_TYPE.SmartActuatorSingleChannel): SmartActuatorSingleChannelOutput
-  createOutput(packetId: string, type: DATA_TYPE.T5): T5Output
   createOutput(packetId: string, type: DATA_TYPE): Output
   createOutput(packetId: string, type: DATA_TYPE) {
     let output = this.findOutput(packetId)
@@ -89,6 +88,30 @@ export class LoxoneRemoteSystem extends EventEmitter {
     output = this.createOutputInstance(packetId, type)
     this.outputs.push(output)
     return output
+  }
+
+  createDigitalOutput(packetId: string) {
+    return this.createOutput(packetId, DATA_TYPE.DIGITAL)
+  }
+
+  createAnalogOutput(packetId: string) {
+    return this.createOutput(packetId, DATA_TYPE.ANALOG)
+  }
+
+  createTextOuput(packetId: string) {
+    return this.createOutput(packetId, DATA_TYPE.TEXT)
+  }
+
+  createT5Output(packetId: string) {
+    return this.createOutput(packetId, DATA_TYPE.T5)
+  }
+
+  createSmartActuatorRGBWOutput(packetId: string) {
+    return this.createOutput(packetId, DATA_TYPE.SmartActuatorRGBW)
+  }
+
+  createSmartActuatorSingleChannelOutput(packetId: string) {
+    return this.createOutput(packetId, DATA_TYPE.SmartActuatorSingleChannel)
   }
 
   /**

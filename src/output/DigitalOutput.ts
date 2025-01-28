@@ -20,6 +20,21 @@ export class DigitalOutput extends Output {
     return this
   }
 
+  private triggerValue(edge: boolean, time = 1000) {
+    this.setValue(edge)
+    setTimeout(() => this.setValue(!edge), time)
+  }
+
+  /** triggers the current value high and then sets it back to 0 after a given time */
+  triggerHigh(time = 1000) {
+    return this.triggerValue(true, time)
+  }
+
+  /** triggers the current value low and then sets it back to 0 after a given time */
+  triggerLow(time = 1000) {
+    return this.triggerValue(false, time)
+  }
+
   getValue() {
     return Boolean(this.value)
   }
