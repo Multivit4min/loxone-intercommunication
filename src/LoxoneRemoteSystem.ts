@@ -84,7 +84,10 @@ export class LoxoneRemoteSystem extends EventEmitter {
   createOutput(packetId: string, type: DATA_TYPE): Output
   createOutput(packetId: string, type: DATA_TYPE) {
     let output = this.findOutput(packetId)
-    if (output) throw new Error(`output with name ${packetId} already exists`)
+    if (output) {
+      if (this.matchesOutputInstance(type, output)) return output
+      throw new Error(`output with name ${packetId} already exists as different type`)
+    }
     output = this.createOutputInstance(packetId, type)
     this.outputs.push(output)
     return output
@@ -151,6 +154,20 @@ export class LoxoneRemoteSystem extends EventEmitter {
     }
   }
 
+  /**
+   * 
+   */
+  private matchesOutputInstance(type: DATA_TYPE, output: Output) {
+    switch (type) {
+      case DATA_TYPE.DIGITAL: return output instanceof DigitalOutput
+      case DATA_TYPE.ANALOG: return output instanceof AnalogOutput
+      case DATA_TYPE.TEXT: return output instanceof TextOutput
+      case DATA_TYPE.T5: return output instanceof T5Output
+      case DATA_TYPE.SmartActuatorRGBW: return output instanceof SmartRGBWOutput
+      case DATA_TYPE.SmartActuatorSingleChannel: return output instanceof SmartActuatorSingleChannelOutput
+      default: return false
+    }
+  }
 
   /**
    * sends the output to the miniserver

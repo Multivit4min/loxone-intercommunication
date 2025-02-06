@@ -160,6 +160,11 @@ declare class DigitalOutput extends Output {
     setValueFromString(value: string): this;
     isTypeValid(value: any): value is boolean;
     setValue(value: boolean): this;
+    private triggerValue;
+    /** triggers the current value high and then sets it back to 0 after a given time */
+    triggerHigh(time?: number): void;
+    /** triggers the current value low and then sets it back to 0 after a given time */
+    triggerLow(time?: number): void;
     getValue(): boolean;
 }
 
@@ -241,8 +246,13 @@ declare class LoxoneRemoteSystem extends EventEmitter {
     createOutput(packetId: string, type: DATA_TYPE.T5): T5Output;
     createOutput(packetId: string, type: DATA_TYPE.SmartActuatorRGBW): SmartRGBWOutput;
     createOutput(packetId: string, type: DATA_TYPE.SmartActuatorSingleChannel): SmartActuatorSingleChannelOutput;
-    createOutput(packetId: string, type: DATA_TYPE.T5): T5Output;
     createOutput(packetId: string, type: DATA_TYPE): Output;
+    createDigitalOutput(packetId: string): DigitalOutput;
+    createAnalogOutput(packetId: string): AnalogOutput;
+    createTextOuput(packetId: string): TextOutput;
+    createT5Output(packetId: string): T5Output;
+    createSmartActuatorRGBWOutput(packetId: string): SmartRGBWOutput;
+    createSmartActuatorSingleChannelOutput(packetId: string): SmartActuatorSingleChannelOutput;
     /**
      * sends the data without maintaining a cyclic interval sending
      * @param packetId name of the output
@@ -263,6 +273,10 @@ declare class LoxoneRemoteSystem extends EventEmitter {
      * @returns
      */
     private createOutputInstance;
+    /**
+     *
+     */
+    private matchesOutputInstance;
     /**
      * sends the output to the miniserver
      * @param output
@@ -318,6 +332,8 @@ declare class LoxoneInputListener {
     private addListener;
     private execListener;
     digital(cb: LoxoneInputListener.DigitalCallbackHandler): number;
+    risingEdge(cb: LoxoneInputListener.DigitalCallbackHandler): number;
+    fallingEdge(cb: LoxoneInputListener.DigitalCallbackHandler): number;
     analog(cb: LoxoneInputListener.AnalogCallbackHandler): number;
     text(cb: LoxoneInputListener.TextCallbackHandler): number;
     smartRgbw(cb: LoxoneInputListener.SmartRGBWCallbackHandler): number;
@@ -332,6 +348,8 @@ declare class LoxoneInputListener {
 declare namespace LoxoneInputListener {
     type ListenerDict = {
         digital: DigitalCallbackHandler[];
+        risingEdge: DigitalCallbackHandler[];
+        fallingEdge: DigitalCallbackHandler[];
         analog: AnalogCallbackHandler[];
         text: TextCallbackHandler[];
         t5: T5CallbackHandler[];

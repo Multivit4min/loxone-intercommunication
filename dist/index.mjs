@@ -397,6 +397,18 @@ var DigitalOutput = class extends Output {
     this.send();
     return this;
   }
+  triggerValue(edge, time = 1e3) {
+    this.setValue(edge);
+    setTimeout(() => this.setValue(!edge), time);
+  }
+  /** triggers the current value high and then sets it back to 0 after a given time */
+  triggerHigh(time = 1e3) {
+    return this.triggerValue(true, time);
+  }
+  /** triggers the current value low and then sets it back to 0 after a given time */
+  triggerLow(time = 1e3) {
+    return this.triggerValue(false, time);
+  }
   getValue() {
     return Boolean(this.value);
   }
@@ -565,10 +577,31 @@ var LoxoneRemoteSystem = class extends EventEmitter {
   }
   createOutput(packetId, type) {
     let output = this.findOutput(packetId);
-    if (output) throw new Error(`output with name ${packetId} already exists`);
+    if (output) {
+      if (this.matchesOutputInstance(type, output)) return output;
+      throw new Error(`output with name ${packetId} already exists as different type`);
+    }
     output = this.createOutputInstance(packetId, type);
     this.outputs.push(output);
     return output;
+  }
+  createDigitalOutput(packetId) {
+    return this.createOutput(packetId, 0 /* DIGITAL */);
+  }
+  createAnalogOutput(packetId) {
+    return this.createOutput(packetId, 1 /* ANALOG */);
+  }
+  createTextOuput(packetId) {
+    return this.createOutput(packetId, 2 /* TEXT */);
+  }
+  createT5Output(packetId) {
+    return this.createOutput(packetId, 3 /* T5 */);
+  }
+  createSmartActuatorRGBWOutput(packetId) {
+    return this.createOutput(packetId, 4 /* SmartActuatorRGBW */);
+  }
+  createSmartActuatorSingleChannelOutput(packetId) {
+    return this.createOutput(packetId, 5 /* SmartActuatorSingleChannel */);
   }
   sendOnce(packetId, type) {
     let output = this.findOutput(packetId);
@@ -597,6 +630,27 @@ var LoxoneRemoteSystem = class extends EventEmitter {
         return new SmartActuatorSingleChannelOutput({ packetId, remoteSystem: this });
       default:
         throw new Error(`can not create output ${type} is not implemented`);
+    }
+  }
+  /**
+   * 
+   */
+  matchesOutputInstance(type, output) {
+    switch (type) {
+      case 0 /* DIGITAL */:
+        return output instanceof DigitalOutput;
+      case 1 /* ANALOG */:
+        return output instanceof AnalogOutput;
+      case 2 /* TEXT */:
+        return output instanceof TextOutput;
+      case 3 /* T5 */:
+        return output instanceof T5Output;
+      case 4 /* SmartActuatorRGBW */:
+        return output instanceof SmartRGBWOutput;
+      case 5 /* SmartActuatorSingleChannel */:
+        return output instanceof SmartActuatorSingleChannelOutput;
+      default:
+        return false;
     }
   }
   /**
@@ -690,6 +744,8 @@ var LoxoneInputListener = class {
     this.id = id;
     this.listeners = {
       digital: [],
+      risingEdge: [],
+      fallingEdge: [],
       analog: [],
       text: [],
       t5: [],
@@ -706,6 +762,12 @@ var LoxoneInputListener = class {
   }
   digital(cb) {
     return this.addListener("digital", cb);
+  }
+  risingEdge(cb) {
+    return this.addListener("risingEdge", cb);
+  }
+  fallingEdge(cb) {
+    return this.addListener("fallingEdge", cb);
   }
   analog(cb) {
     return this.addListener("analog", cb);
@@ -730,6 +792,7 @@ var LoxoneInputListener = class {
       case 1 /* ANALOG */:
         return this.execListener("analog", value);
       case 0 /* DIGITAL */:
+        this.execListener(value ? "risingEdge" : "fallingEdge", null);
         return this.execListener("digital", value);
       case 2 /* TEXT */:
         return this.execListener("text", value);
