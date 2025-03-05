@@ -11,19 +11,29 @@ import { TextOutput } from "./output/TextOutput"
 import { SmartRGBWOutput } from "./output/SmartRGBWOutput"
 import { SmartActuatorSingleChannelOutput } from "./output/SmartActuatorSingleChannel"
 
+export interface LoxoneRemoteSystem extends EventEmitter {
+  on(eventName: "error", listener: (error: Error) => void): this
+  emit(eventName: "error", error: Error): boolean
+}
+
 export class LoxoneRemoteSystem extends EventEmitter {
 
   private socket: Socket
   private outputs: Output[] = []
-  private connectedResolve: Promise<void>
+  private connectedResolve!: Promise<void>
 
   constructor(readonly props: LoxoneRemoteSystem.Props) {
     super()
     this.socket = dgram.createSocket("udp4")
     this.connectedResolve = new Promise(resolve => {
       this.socket.connect(this.props.port, this.props.address, resolve)
+      this.socket.on("error", e => {
+        if ("code" in e && e.code === "ECONNREFUSED" && props.suppressECONNREFUSED) return
+        this.emit("error", e)
+      })
     })
   }
+
 
   /**
    * server instance the remote system belongs to
@@ -206,6 +216,8 @@ export namespace LoxoneRemoteSystem {
     //network port to reach the remote server
     port: number
     server: LoxoneServer
+    //suppress econnrefused errors which might come from miniserver restarting or loading the programm
+    suppressECONNREFUSED?: boolean
   }
 
   export type SendValue = number|boolean|string
