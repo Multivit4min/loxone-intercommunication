@@ -580,6 +580,10 @@ var LoxoneRemoteSystem = class extends import_stream.EventEmitter {
     this.socket = import_dgram.default.createSocket("udp4");
     this.connectedResolve = new Promise((resolve) => {
       this.socket.connect(this.props.port, this.props.address, resolve);
+      this.socket.on("error", (e) => {
+        if ("code" in e && e.code === "ECONNREFUSED" && props.suppressECONNREFUSED) return;
+        this.emit("error", e);
+      });
     });
   }
   /**
@@ -918,6 +922,14 @@ var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
   bind(port, address) {
     return new Promise((resolve) => {
       this.server.bind(port, address, () => resolve());
+    });
+  }
+  /**
+   * closes the bound port
+   */
+  close() {
+    return new Promise((resolve) => {
+      this.server.close(resolve);
     });
   }
   /**

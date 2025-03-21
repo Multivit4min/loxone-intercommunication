@@ -4,6 +4,7 @@ import { LoxoneUDPPacket } from "./packet/LoxoneUDPPacket"
 import { LoxoneRemoteSystem } from "./LoxoneRemoteSystem"
 import { LoxoneInput } from "./packet/LoxoneInput"
 import { LoxoneInputListener } from "./util/LoxoneInputListener"
+import { resolve } from "path"
 
 
 export interface LoxoneServer extends EventEmitter {
@@ -76,6 +77,15 @@ export class LoxoneServer extends EventEmitter {
   bind(port: number, address?: string) {
     return new Promise<void>(resolve => {
       this.server.bind(port, address, () => resolve())
+    })
+  }
+
+  /**
+   * closes the bound port
+   */
+  close() {
+    return new Promise<void>(resolve => {
+      this.server.close(resolve)
     })
   }
 

@@ -202,6 +202,10 @@ declare class SmartActuatorSingleChannelOutput extends Output {
     getValue(): SmartActuatorSingleChannelPayload.Type;
 }
 
+interface LoxoneRemoteSystem extends EventEmitter {
+    on(eventName: "error", listener: (error: Error) => void): this;
+    emit(eventName: "error", error: Error): boolean;
+}
 declare class LoxoneRemoteSystem extends EventEmitter {
     readonly props: LoxoneRemoteSystem.Props;
     private socket;
@@ -295,6 +299,7 @@ declare namespace LoxoneRemoteSystem {
         address: string;
         port: number;
         server: LoxoneServer;
+        suppressECONNREFUSED?: boolean;
     };
     type SendValue = number | boolean | string;
 }
@@ -406,6 +411,10 @@ declare class LoxoneServer extends EventEmitter {
      * @returns
      */
     bind(port: number, address?: string): Promise<void>;
+    /**
+     * closes the bound port
+     */
+    close(): Promise<void>;
     /**
      * identifies the packet and returns the correct class instance
      * @param buffer
