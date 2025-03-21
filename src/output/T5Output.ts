@@ -14,7 +14,6 @@ export class T5Output extends Output {
     return (
       typeof value === "object" &&
       typeof value !== null &&
-      value["button"] &&
       typeof value["button"] === "number"
     )
   }

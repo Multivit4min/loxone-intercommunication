@@ -171,7 +171,7 @@ declare class DigitalOutput extends Output {
 declare class T5Output extends Output {
     private value;
     setValueFromString(value: string): this;
-    isTypeValid(value: any): any;
+    isTypeValid(value: any): boolean;
     setValue(button: T5Payload.ButtonPressed): this;
     getValue(): T5Payload.Type;
 }

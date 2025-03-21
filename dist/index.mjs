@@ -424,7 +424,7 @@ var T5Output = class extends Output {
     return this.setValue(JSON.parse(value));
   }
   isTypeValid(value) {
-    return typeof value === "object" && typeof value !== null && value["button"] && typeof value["button"] === "number";
+    return typeof value === "object" && typeof value !== null && typeof value["button"] === "number";
   }
   setValue(button) {
     if (!this.isTypeValid({ button })) throw new OutputTypeError(this, { button });
