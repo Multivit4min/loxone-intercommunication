@@ -172,7 +172,7 @@ declare class T5Output extends Output {
     private value;
     setValueFromString(value: string): this;
     isTypeValid(value: any): boolean;
-    setValue(button: T5Payload.ButtonPressed): this;
+    setValue(props: T5Payload.Type): this;
     getValue(): T5Payload.Type;
 }
 

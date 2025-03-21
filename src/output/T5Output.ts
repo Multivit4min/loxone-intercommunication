@@ -18,9 +18,9 @@ export class T5Output extends Output {
     )
   }
 
-  setValue(button: T5Payload.ButtonPressed) {
-    if (!this.isTypeValid({ button })) throw new OutputTypeError(this, { button })
-    this.value = { button }
+  setValue(props: T5Payload.Type) {
+    if (!this.isTypeValid(props)) throw new OutputTypeError(this, { button: props.button })
+    this.value = { button: props.button }
     this.send()
     return this
   }

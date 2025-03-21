@@ -426,9 +426,9 @@ var T5Output = class extends Output {
   isTypeValid(value) {
     return typeof value === "object" && typeof value !== null && typeof value["button"] === "number";
   }
-  setValue(button) {
-    if (!this.isTypeValid({ button })) throw new OutputTypeError(this, { button });
-    this.value = { button };
+  setValue(props) {
+    if (!this.isTypeValid(props)) throw new OutputTypeError(this, { button: props.button });
+    this.value = { button: props.button };
     this.send();
     return this;
   }
