@@ -88,8 +88,10 @@ export class LoxoneOutput extends LoxoneIOPacket {
           return { type: DATA_TYPE.T5, value: v }
         } else if (!isNaN(v["red"]) && !isNaN(v["green"]) && !isNaN(v["blue"]) && !isNaN(v["white"])) {
           return { type: DATA_TYPE.SmartActuatorRGBW, value: v }
-        } else if (v["channel"]) {
+        } else if (!isNaN(v["channel"])) {
           return { type: DATA_TYPE.SmartActuatorSingleChannel, value: v }
+        } else {
+          throw new Error(`unknown object type: ${JSON.stringify(value)}`)
         }
       default: throw new Error(`unknown value type: ${typeof value}`)
     }
