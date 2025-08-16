@@ -1,9 +1,9 @@
-import { SmartRGBWPayload } from "../packet/payload/SmartRGBWPayload.js"
-import { SmartActuatorSingleChannelPayload } from "../packet/payload/SmartActuatorSingleChannelPayload.js"
-import { SmartActuatorTunableWhitePayload } from "../packet/payload/SmartActuatorTunableWhitePayload.js"
-import { T5Payload } from "../packet/payload/T5Payload.js"
-import { LoxoneInput } from "../packet/LoxoneInput.js"
-import { DATA_TYPE } from "../packet/DataType.js"
+import { SmartRGBWPayload } from "../packet/payload/SmartRGBWPayload"
+import { SmartActuatorSingleChannelPayload } from "../packet/payload/SmartActuatorSingleChannelPayload"
+import { SmartActuatorTunableWhitePayload } from "../packet/payload/SmartActuatorTunableWhitePayload"
+import { T5Payload } from "../packet/payload/T5Payload"
+import { LoxoneInput } from "../packet/LoxoneInput"
+import { DATA_TYPE } from "../packet/DataType"
 
 export class LoxoneInputListener {
 

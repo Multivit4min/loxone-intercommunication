@@ -38,6 +38,10 @@ export class LoxoneOutput extends LoxoneIOPacket {
     return this._payload
   }
 
+  get dataType() {
+    return this.type
+  }
+
   toBuffer() {
     const buffer = Buffer.alloc(38)
     buffer.writeUint8(0x9e)

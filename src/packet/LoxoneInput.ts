@@ -38,6 +38,10 @@ export class LoxoneInput extends LoxoneIOPacket {
     return this.buffer.readUInt8(37)
   }
 
+  get dataType() {
+    return this.type
+  }
+
   private get payloadBuffer() {
     return this.buffer.subarray(38, 38 + this.payloadLength)
   }

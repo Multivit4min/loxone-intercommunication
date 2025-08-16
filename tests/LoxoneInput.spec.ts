@@ -1,15 +1,12 @@
 import { describe, expect, test } from "@jest/globals"
-import { LoxoneIOPacket } from "../src/packet/LoxoneIOPacket"
+import { LoxoneInput } from "../src"
 
 const buffer = Buffer.from([0x9e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x32, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x65, 0x78, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x02, 0x3a, 0x29, 0x00])
 
-describe("LoxoneIOPacket", () => {
+describe("LoxoneInput", () => {
   test("checks for validity of Buffer destruction and building", () => {
-    const packet = LoxoneIOPacket.fromBuffer(buffer)
-    console.log(buffer)
-    console.log(packet.toBuffer())
+    const packet = new LoxoneInput(buffer)
     expect(buffer.byteLength).toBe(packet.toBuffer().byteLength)
     expect(buffer).toEqual(packet.toBuffer())
-    console.log(packet)
   })
 })
