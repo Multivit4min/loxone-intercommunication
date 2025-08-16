@@ -15,15 +15,18 @@ declare enum DATA_TYPE {
     SmartActuatorTunableWhite = 6
 }
 
-declare class LoxoneIOPacket extends LoxoneUDPPacket {
-    get controlByte(): number;
-}
-
 declare abstract class Payload {
     readonly buffer: Buffer;
     constructor(buffer: Buffer);
     abstract get value(): any;
     get byteLength(): number;
+}
+
+declare abstract class LoxoneIOPacket extends LoxoneUDPPacket {
+    get controlByte(): number;
+    abstract get packetId(): string;
+    abstract get payload(): Payload;
+    abstract get dataType(): DATA_TYPE;
 }
 
 declare class SmartActuatorSingleChannelPayload extends Payload {
@@ -89,6 +92,7 @@ declare class LoxoneOutput extends LoxoneIOPacket {
     constructor(props: LoxoneOutput.Props);
     get payloadLength(): number;
     get payload(): Payload;
+    get dataType(): DATA_TYPE;
     toBuffer(): Buffer<ArrayBuffer>;
     private createPayload;
     static createPayloadBuffer({ type, value }: LoxoneOutput.PayloadDataType): Buffer<ArrayBuffer>;
@@ -313,6 +317,7 @@ declare class LoxoneInput extends LoxoneIOPacket {
     get packetId(): string;
     get payloadLength(): number;
     get type(): number;
+    get dataType(): number;
     private get payloadBuffer();
     get payload(): Payload;
     toBuffer(): Buffer<ArrayBuffer>;

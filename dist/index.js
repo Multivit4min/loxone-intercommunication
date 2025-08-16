@@ -288,6 +288,9 @@ var LoxoneOutput = class _LoxoneOutput extends LoxoneIOPacket {
     if (!this._payload) this._payload = this.createPayload();
     return this._payload;
   }
+  get dataType() {
+    return this.type;
+  }
   toBuffer() {
     const buffer = Buffer.alloc(38);
     buffer.writeUint8(158);
@@ -751,6 +754,9 @@ var LoxoneInput = class extends LoxoneIOPacket {
   }
   get type() {
     return this.buffer.readUInt8(37);
+  }
+  get dataType() {
+    return this.type;
   }
   get payloadBuffer() {
     return this.buffer.subarray(38, 38 + this.payloadLength);
