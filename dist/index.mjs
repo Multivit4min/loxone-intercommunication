@@ -544,6 +544,14 @@ var LoxoneRemoteSystem = class extends EventEmitter {
       });
     });
   }
+  close() {
+    return new Promise((resolve) => {
+      this.socket.close(() => {
+        this.socket.removeAllListeners();
+        resolve();
+      });
+    });
+  }
   /**
    * server instance the remote system belongs to
    */
@@ -838,15 +846,6 @@ var LoxoneServer = class _LoxoneServer extends EventEmitter2 {
     this.props = props;
     this.server = dgram2.createSocket("udp4");
     this.inputs = [];
-    this.server.on("message", (buffer, rinfo) => {
-      const packet = _LoxoneServer.packetFromBuffer(buffer);
-      if (!packet) return;
-      this.emit("data", { rinfo, packet });
-      if (packet instanceof LoxoneInput) {
-        this.emit("input", { rinfo, packet });
-        this.inputs.filter((i) => i.match(packet.packetId)).forEach((i) => i.receive(packet));
-      }
-    });
   }
   /**
    * ownId which is being sent to the miniserver for identification purposes
@@ -882,6 +881,15 @@ var LoxoneServer = class _LoxoneServer extends EventEmitter2 {
    */
   bind(port, address) {
     return new Promise((resolve) => {
+      this.server.on("message", (buffer, rinfo) => {
+        const packet = _LoxoneServer.packetFromBuffer(buffer);
+        if (!packet) return;
+        this.emit("data", { rinfo, packet });
+        if (packet instanceof LoxoneInput) {
+          this.emit("input", { rinfo, packet });
+          this.inputs.filter((i) => i.match(packet.packetId)).forEach((i) => i.receive(packet));
+        }
+      });
       this.server.bind(port, address, () => resolve());
     });
   }
@@ -890,7 +898,10 @@ var LoxoneServer = class _LoxoneServer extends EventEmitter2 {
    */
   close() {
     return new Promise((resolve) => {
-      this.server.close(resolve);
+      this.server.close(() => {
+        this.server.removeAllListeners();
+        resolve();
+      });
     });
   }
   /**

@@ -216,6 +216,7 @@ declare class LoxoneRemoteSystem extends EventEmitter {
     private outputs;
     private connectedResolve;
     constructor(props: LoxoneRemoteSystem.Props);
+    close(): Promise<void>;
     /**
      * server instance the remote system belongs to
      */
