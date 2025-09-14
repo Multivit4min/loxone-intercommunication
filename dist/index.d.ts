@@ -142,6 +142,7 @@ declare abstract class Output {
     get packetId(): string;
     private updateInterval;
     setInterval(time: number): this;
+    stop(): void;
     send(): void;
 }
 declare namespace Output {

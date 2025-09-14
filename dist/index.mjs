@@ -355,6 +355,9 @@ var Output = class {
     this.updateInterval();
     return this;
   }
+  stop() {
+    clearInterval(this._interval);
+  }
   send() {
     this.updateInterval();
     return this.remoteSystem.send(this);
@@ -547,6 +550,7 @@ var LoxoneRemoteSystem = class extends EventEmitter {
   close() {
     return new Promise((resolve) => {
       this.socket.close(() => {
+        this.outputs.forEach((output) => output.stop());
         this.socket.removeAllListeners();
         resolve();
       });
