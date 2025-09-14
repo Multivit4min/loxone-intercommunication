@@ -42,6 +42,10 @@ export abstract class Output {
     return this
   }
 
+  stop() {
+    clearInterval(this._interval)
+  }
+
   send() {
     this.updateInterval()
     return this.remoteSystem.send(this)

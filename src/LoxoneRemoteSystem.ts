@@ -37,6 +37,7 @@ export class LoxoneRemoteSystem extends EventEmitter {
   close() {
     return new Promise<void>(resolve => {
       this.socket.close(() => {
+        this.outputs.forEach(output => output.stop())
         this.socket.removeAllListeners()
         resolve()
       })
