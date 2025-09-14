@@ -34,6 +34,14 @@ export class LoxoneRemoteSystem extends EventEmitter {
     })
   }
 
+  close() {
+    return new Promise<void>(resolve => {
+      this.socket.close(() => {
+        this.socket.removeAllListeners()
+        resolve()
+      })
+    })
+  }
 
   /**
    * server instance the remote system belongs to
