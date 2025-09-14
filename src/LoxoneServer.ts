@@ -4,7 +4,6 @@ import { LoxoneUDPPacket } from "./packet/LoxoneUDPPacket"
 import { LoxoneRemoteSystem } from "./LoxoneRemoteSystem"
 import { LoxoneInput } from "./packet/LoxoneInput"
 import { LoxoneInputListener } from "./util/LoxoneInputListener"
-import { resolve } from "path"
 
 
 export interface LoxoneServer extends EventEmitter {
@@ -27,16 +26,6 @@ export class LoxoneServer extends EventEmitter {
 
   constructor(readonly props: LoxoneServer.Props = {}) {
     super()
-    this.server.on("message", (buffer, rinfo) => {
-      const packet = LoxoneServer.packetFromBuffer(buffer)
-      if (!packet) return
-      this.emit("data", { rinfo, packet })
-      if (packet instanceof LoxoneInput) {
-        this.emit("input", { rinfo, packet })
-        this.inputs.filter(i => i.match(packet.packetId)).forEach(i => i.receive(packet))
-        //if (this.inputs[packet.packetId]) this.inputs[packet.packetId].receive(packet)
-      }
-    })
   }
 
   /**
@@ -76,6 +65,16 @@ export class LoxoneServer extends EventEmitter {
    */
   bind(port: number, address?: string) {
     return new Promise<void>(resolve => {
+      this.server.on("message", (buffer, rinfo) => {
+        const packet = LoxoneServer.packetFromBuffer(buffer)
+        if (!packet) return
+        this.emit("data", { rinfo, packet })
+        if (packet instanceof LoxoneInput) {
+          this.emit("input", { rinfo, packet })
+          this.inputs.filter(i => i.match(packet.packetId)).forEach(i => i.receive(packet))
+          //if (this.inputs[packet.packetId]) this.inputs[packet.packetId].receive(packet)
+        }
+      })
       this.server.bind(port, address, () => resolve())
     })
   }
@@ -85,7 +84,10 @@ export class LoxoneServer extends EventEmitter {
    */
   close() {
     return new Promise<void>(resolve => {
-      this.server.close(resolve)
+      this.server.close(() => {
+        this.server.removeAllListeners()
+        resolve()
+      })
     })
   }
 
