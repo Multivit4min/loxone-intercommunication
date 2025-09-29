@@ -7,7 +7,7 @@ export class SmartActuatorSingleChannelPayload extends Payload {
   }
 
   get fadeTime() {
-    return this.buffer.readUint16LE(4)
+    return this.buffer.readUint16LE(4) / 10
   }
 
   get value(): SmartActuatorSingleChannelPayload.Type {
