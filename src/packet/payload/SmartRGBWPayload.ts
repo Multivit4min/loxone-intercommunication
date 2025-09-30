@@ -43,7 +43,7 @@ export class SmartRGBWPayload extends Payload {
     buffer.writeUint8(data.green, 1)
     buffer.writeUint8(data.blue, 2)
     buffer.writeUint8(data.white, 3)
-    buffer.writeUint16LE(data.fadeTime, 4)
+    buffer.writeUint16LE(Math.round(data.fadeTime * 10), 4)
     buffer.writeUint16LE(data.bits || 0, 6)
     return buffer
   }

@@ -20,7 +20,7 @@ export class SmartActuatorSingleChannelPayload extends Payload {
   static bufferFromValue(data: SmartActuatorSingleChannelPayload.Type) {
     const buffer = Buffer.alloc(8)
     buffer.writeUint8(data.channel, 3)
-    buffer.writeUint16LE(data.fadeTime, 4)
+    buffer.writeUint16LE(Math.round(data.fadeTime * 10), 4)
     return buffer
   }
 }
