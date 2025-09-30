@@ -96,10 +96,19 @@ UTF8 Encoded Text with last Byte `0x00`
 
 8 Byte Total
 
+3 Bytes Unknown\
+1 Byte Channel Payload\
+2 Bytes Fading Time in 0.1 Seconds
+
+
 > SmartActuatorTunableWhite Payload
 
 8 Byte Total
 
+2 Bytes Color Temperature in Kelvin\
+2 Bytes Brightness in %\
+2 Bytes Fading Time in 0.2 Seconds\
+2 Bytes Unknown
 
 Unknown Data First Byte 0x8d
 ============================
