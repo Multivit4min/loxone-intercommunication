@@ -23,6 +23,7 @@ export class LoxoneServer extends EventEmitter {
 
   readonly server = dgram.createSocket("udp4")
   private inputs: LoxoneInputListener[] = []
+  private received: LoxoneInput[] = []
 
   constructor(readonly props: LoxoneServer.Props = {}) {
     super()
@@ -33,6 +34,10 @@ export class LoxoneServer extends EventEmitter {
    */
   get ownId() {
     return this.props.ownId || ""
+  }
+
+  get emitInputMode() {
+    return this.props.emitInputMode || "all"
   }
 
   /**
@@ -70,9 +75,16 @@ export class LoxoneServer extends EventEmitter {
         if (!packet) return
         this.emit("data", { rinfo, packet })
         if (packet instanceof LoxoneInput) {
-          this.emit("input", { rinfo, packet })
+          const idx = this.received.findIndex(i => i.packetId === packet.packetId)
+          if (this.emitInputMode === "all" || (idx < 0 || !this.received[idx].equals(packet))) {
+            this.emit("input", { rinfo, packet })
+          }
+          if (idx < 0) {
+            this.received.push(packet)
+          } else {
+            this.received[idx] = packet
+          }
           this.inputs.filter(i => i.match(packet.packetId)).forEach(i => i.receive(packet))
-          //if (this.inputs[packet.packetId]) this.inputs[packet.packetId].receive(packet)
         }
       })
       this.server.bind(port, address, () => resolve())
@@ -86,6 +98,7 @@ export class LoxoneServer extends EventEmitter {
     return new Promise<void>(resolve => {
       this.server.close(() => {
         this.server.removeAllListeners()
+        this.received = []
         resolve()
       })
     })
@@ -112,7 +125,12 @@ export namespace LoxoneServer {
   export type Props = {
     //id of the server, leave empty if you want to listen to all incoming packets
     ownId?: string
+    emitInputMode?: EmitInputEventMode
   }
+
+  export type EmitInputEventMode =
+    //wether only changed inputs should be emitted or all received inputs should be emitted
+    "all" | "change"
 
   export type DataEvent = {
     //udp remote info
