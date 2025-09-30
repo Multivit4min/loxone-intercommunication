@@ -1,6 +1,6 @@
 {
   "name": "loxone-ici",
-  "version": "0.0.14",
+  "version": "0.1.0",
   "description": "Connect to your Loxone via the Loxone intercommunication Interface",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
