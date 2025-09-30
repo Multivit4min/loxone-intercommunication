@@ -24,9 +24,11 @@ export class SmartActuatorTunableWhitePayload extends Payload {
     }
   }
 
-  static bufferFromValue(data: Buffer) {
+  static bufferFromValue(data: SmartActuatorTunableWhitePayload.Type) {
     const buffer = Buffer.alloc(8)
-    data.copy(buffer, 0, 0, 8)
+    buffer.writeUint16LE(data.temperature, 0)
+    buffer.writeUint16LE(data.brightness, 2)
+    buffer.writeUint16LE(Math.round(data.fadeTime * 10), 4)
     return buffer
   }
 }
