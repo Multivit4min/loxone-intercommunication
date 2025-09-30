@@ -51,6 +51,15 @@ export class LoxoneInput extends LoxoneIOPacket {
     return this._payload
   }
 
+  /**
+   * checks if the payload buffer is equal to the payload of another packet
+   * @param packet the packet to compare the payload to
+   * @returns 
+   */
+  equals(packet: LoxoneInput) {
+    return this.payloadBuffer.equals(packet.payloadBuffer)
+  }
+
   toBuffer() {
     const buffer = Buffer.alloc(38)
     buffer.writeUint8(0x9e)
