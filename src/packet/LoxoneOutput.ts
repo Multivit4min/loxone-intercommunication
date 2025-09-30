@@ -86,7 +86,7 @@ export class LoxoneOutput extends LoxoneIOPacket {
       case "boolean": return { type: DATA_TYPE.DIGITAL, value }
       case "object":
         const v = <any>value
-        if (v instanceof Buffer) {
+        if (!isNaN(v["brightness"]) && !isNaN(v["temperature"])) {
           return { type: DATA_TYPE.SmartActuatorTunableWhite, value: v }
         } else if (!isNaN(v["button"])) {
           return { type: DATA_TYPE.T5, value: v }
@@ -140,7 +140,7 @@ export namespace LoxoneOutput {
     value: SmartActuatorSingleChannelPayload.Type
   } | {
     type: DATA_TYPE.SmartActuatorTunableWhite
-    value: Buffer
+    value: SmartActuatorTunableWhitePayload.Type
   }
 
 }
