@@ -9,7 +9,7 @@ export class SmartActuatorTunableWhitePayload extends Payload {
 
   /** brightness in % */
   get brightness() {
-    return this.buffer.readUint8(2)
+    return this.buffer.readUint16LE(2)
   }
 
   get fadeTime() {
