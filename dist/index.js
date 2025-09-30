@@ -174,7 +174,7 @@ var SmartActuatorSingleChannelPayload = class extends Payload {
   static bufferFromValue(data) {
     const buffer = Buffer.alloc(8);
     buffer.writeUint8(data.channel, 3);
-    buffer.writeUint16LE(data.fadeTime, 4);
+    buffer.writeUint16LE(Math.round(data.fadeTime * 10), 4);
     return buffer;
   }
 };
@@ -201,7 +201,9 @@ var SmartActuatorTunableWhitePayload = class extends Payload {
   }
   static bufferFromValue(data) {
     const buffer = Buffer.alloc(8);
-    data.copy(buffer, 0, 0, 8);
+    buffer.writeUint16LE(data.temperature, 0);
+    buffer.writeUint16LE(data.brightness, 2);
+    buffer.writeUint16LE(Math.round(data.fadeTime * 10), 4);
     return buffer;
   }
 };
@@ -242,7 +244,7 @@ var SmartRGBWPayload = class extends Payload {
     buffer.writeUint8(data.green, 1);
     buffer.writeUint8(data.blue, 2);
     buffer.writeUint8(data.white, 3);
-    buffer.writeUint16LE(data.fadeTime, 4);
+    buffer.writeUint16LE(Math.round(data.fadeTime * 10), 4);
     buffer.writeUint16LE(data.bits || 0, 6);
     return buffer;
   }
@@ -364,7 +366,7 @@ var LoxoneOutput = class _LoxoneOutput extends LoxoneIOPacket {
         return { type: 0 /* DIGITAL */, value };
       case "object":
         const v = value;
-        if (v instanceof Buffer) {
+        if (!isNaN(v["brightness"]) && !isNaN(v["temperature"])) {
           return { type: 6 /* SmartActuatorTunableWhite */, value: v };
         } else if (!isNaN(v["button"])) {
           return { type: 3 /* T5 */, value: v };

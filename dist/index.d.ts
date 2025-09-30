@@ -42,6 +42,26 @@ declare namespace SmartActuatorSingleChannelPayload {
     };
 }
 
+declare class SmartActuatorTunableWhitePayload extends Payload {
+    /** temperature in kelvin */
+    get temperature(): number;
+    /** brightness in % */
+    get brightness(): number;
+    get fadeTime(): number;
+    get value(): SmartActuatorTunableWhitePayload.Type;
+    static bufferFromValue(data: SmartActuatorTunableWhitePayload.Type): Buffer<ArrayBuffer>;
+}
+declare namespace SmartActuatorTunableWhitePayload {
+    type Type = {
+        /** temperature in kelvin */
+        temperature: number;
+        /** brightness in % */
+        brightness: number;
+        /** fadeTime in seconds */
+        fadeTime: number;
+    };
+}
+
 declare class SmartRGBWPayload extends Payload {
     get red(): number;
     get green(): number;
@@ -124,7 +144,7 @@ declare namespace LoxoneOutput {
         value: SmartActuatorSingleChannelPayload.Type;
     } | {
         type: DATA_TYPE.SmartActuatorTunableWhite;
-        value: Buffer;
+        value: SmartActuatorTunableWhitePayload.Type;
     };
 }
 
@@ -330,26 +350,6 @@ declare class LoxoneInput extends LoxoneIOPacket {
     equals(packet: LoxoneInput): boolean;
     toBuffer(): Buffer<ArrayBuffer>;
     private createPayload;
-}
-
-declare class SmartActuatorTunableWhitePayload extends Payload {
-    /** temperature in kelvin */
-    get temperature(): number;
-    /** brightness in % */
-    get brightness(): number;
-    get fadeTime(): number;
-    get value(): SmartActuatorTunableWhitePayload.Type;
-    static bufferFromValue(data: Buffer): Buffer<ArrayBuffer>;
-}
-declare namespace SmartActuatorTunableWhitePayload {
-    type Type = {
-        /** temperature in kelvin */
-        temperature: number;
-        /** brightness in % */
-        brightness: number;
-        /** fadeTime in seconds */
-        fadeTime: number;
-    };
 }
 
 declare class LoxoneInputListener {
