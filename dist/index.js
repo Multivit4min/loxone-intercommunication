@@ -163,7 +163,7 @@ var SmartActuatorSingleChannelPayload = class extends Payload {
     return this.buffer.readUint8(3);
   }
   get fadeTime() {
-    return this.buffer.readUint16LE(4);
+    return this.buffer.readUint16LE(4) / 10;
   }
   get value() {
     return {
@@ -181,9 +181,22 @@ var SmartActuatorSingleChannelPayload = class extends Payload {
 
 // src/packet/payload/SmartActuatorTunableWhitePayload.ts
 var SmartActuatorTunableWhitePayload = class extends Payload {
+  /** temperature in kelvin */
+  get temperature() {
+    return this.buffer.readUInt16LE(0);
+  }
+  /** brightness in % */
+  get brightness() {
+    return this.buffer.readUint16LE(2);
+  }
+  get fadeTime() {
+    return this.buffer.readUint16LE(4) / 10;
+  }
   get value() {
     return {
-      buffer: this.buffer
+      temperature: this.temperature,
+      brightness: this.brightness,
+      fadeTime: this.fadeTime
     };
   }
   static bufferFromValue(data) {
@@ -208,7 +221,7 @@ var SmartRGBWPayload = class extends Payload {
     return this.buffer.readUint8(3);
   }
   get fadeTime() {
-    return this.buffer.readUint16LE(4);
+    return this.buffer.readUint16LE(4) / 10;
   }
   get bits() {
     return this.buffer.readUint16LE(6);
@@ -777,6 +790,14 @@ var LoxoneInput = class extends LoxoneIOPacket {
     if (!this._payload) this._payload = this.createPayload();
     return this._payload;
   }
+  /**
+   * checks if the payload buffer is equal to the payload of another packet
+   * @param packet the packet to compare the payload to
+   * @returns 
+   */
+  equals(packet) {
+    return this.payloadBuffer.equals(packet.payloadBuffer);
+  }
   toBuffer() {
     const buffer = Buffer.alloc(38);
     buffer.writeUint8(158);
@@ -897,12 +918,16 @@ var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
     this.props = props;
     this.server = import_dgram2.default.createSocket("udp4");
     this.inputs = [];
+    this.received = [];
   }
   /**
    * ownId which is being sent to the miniserver for identification purposes
    */
   get ownId() {
     return this.props.ownId || "";
+  }
+  get emitInputMode() {
+    return this.props.emitInputMode || "all";
   }
   /**
    * creates a new remote system which sends inputs and
@@ -937,7 +962,15 @@ var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
         if (!packet) return;
         this.emit("data", { rinfo, packet });
         if (packet instanceof LoxoneInput) {
-          this.emit("input", { rinfo, packet });
+          const idx = this.received.findIndex((i) => i.packetId === packet.packetId);
+          if (this.emitInputMode === "all" || (idx < 0 || !this.received[idx].equals(packet))) {
+            this.emit("input", { rinfo, packet });
+          }
+          if (idx < 0) {
+            this.received.push(packet);
+          } else {
+            this.received[idx] = packet;
+          }
           this.inputs.filter((i) => i.match(packet.packetId)).forEach((i) => i.receive(packet));
         }
       });
@@ -951,6 +984,7 @@ var LoxoneServer = class _LoxoneServer extends import_stream2.EventEmitter {
     return new Promise((resolve) => {
       this.server.close(() => {
         this.server.removeAllListeners();
+        this.received = [];
         resolve();
       });
     });

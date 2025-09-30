@@ -322,17 +322,33 @@ declare class LoxoneInput extends LoxoneIOPacket {
     get dataType(): number;
     private get payloadBuffer();
     get payload(): Payload;
+    /**
+     * checks if the payload buffer is equal to the payload of another packet
+     * @param packet the packet to compare the payload to
+     * @returns
+     */
+    equals(packet: LoxoneInput): boolean;
     toBuffer(): Buffer<ArrayBuffer>;
     private createPayload;
 }
 
 declare class SmartActuatorTunableWhitePayload extends Payload {
+    /** temperature in kelvin */
+    get temperature(): number;
+    /** brightness in % */
+    get brightness(): number;
+    get fadeTime(): number;
     get value(): SmartActuatorTunableWhitePayload.Type;
     static bufferFromValue(data: Buffer): Buffer<ArrayBuffer>;
 }
 declare namespace SmartActuatorTunableWhitePayload {
     type Type = {
-        buffer: Buffer;
+        /** temperature in kelvin */
+        temperature: number;
+        /** brightness in % */
+        brightness: number;
+        /** fadeTime in seconds */
+        fadeTime: number;
     };
 }
 
@@ -395,11 +411,13 @@ declare class LoxoneServer extends EventEmitter {
     readonly props: LoxoneServer.Props;
     readonly server: dgram.Socket;
     private inputs;
+    private received;
     constructor(props?: LoxoneServer.Props);
     /**
      * ownId which is being sent to the miniserver for identification purposes
      */
     get ownId(): string;
+    get emitInputMode(): LoxoneServer.EmitInputEventMode;
     /**
      * creates a new remote system which sends inputs and
      * receives output from a loxone server
@@ -432,7 +450,9 @@ declare class LoxoneServer extends EventEmitter {
 declare namespace LoxoneServer {
     type Props = {
         ownId?: string;
+        emitInputMode?: EmitInputEventMode;
     };
+    type EmitInputEventMode = "all" | "change";
     type DataEvent = {
         rinfo: dgram.RemoteInfo;
         packet: LoxoneUDPPacket;
