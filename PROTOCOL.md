@@ -55,7 +55,7 @@ All multi-byte values are encoded in **Little Endian** unless stated otherwise.
   | Offset | Size | Field       | Description                                                 |
   |--------|------|-------------|-------------------------------------------------------------|
   | **HEADER**                                                                                |
-  | 0      | 1    | Packet Type | `0x9E` when plain IO output is sent                         |
+  | 0      | 1    | Packet Type | `0x9F` when encrypted IO output is sent                     |
   | 1–7    | 7    | Unknown     | Purpose currently unknown                                   |
   | 8–15   | 8    | Own ID      | Configured under **Network Intercommunication → Own ID**    |
   | 16     | 1    | Unknown     | Always `0x00` (observed)                                    |
