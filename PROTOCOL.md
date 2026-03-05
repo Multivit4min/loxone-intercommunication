@@ -2,80 +2,109 @@
 
 All multi-byte values are encoded in **Little Endian** unless stated otherwise.
 
----
+## Packet types
 
-# Output Data Packet (First Byte `0x9E`)
+<details>
+  <summary>0x9E Output Data Packet</summary>
+  
+  Example packet:
 
-Example packet:
+  ```
+  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
+  9e 00 00 00 00 00 00 00 73 65 72 76 65 72 00 00 00 72 65 6d 6f 74 65 00 00 00 61 6e 61 6c 6f 67 00 00 00 08 00 01 00 00 00 20 d2 6f f0 bf
+  ```
 
-```
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
-9e 00 00 00 00 00 00 00 73 65 72 76 65 72 00 00 00 72 65 6d 6f 74 65 00 00 00 61 6e 61 6c 6f 67 00 00 00 08 00 01 00 00 00 20 d2 6f f0 bf
-```
+  ---
 
----
+  ## Packet Layout
 
-## Packet Layout
+  | Offset | Size | Field       | Description                                              |
+  |--------|------|-------------|----------------------------------------------------------|
+  | **HEADER**                                                                             |
+  | 0      | 1    | Packet Type | `0x9E` when plain IO output is sent                      |
+  | 1–7    | 7    | Unknown     | Purpose currently unknown                                |
+  | 8–15   | 8    | Own ID      | Configured under **Network Intercommunication → Own ID** |
+  | 16     | 1    | Unknown     | Always `0x00` (observed)                                 |
+  | 17–24  | 8    | Target ID   | Configured as **ID of the Remote System**                |
+  | 25     | 1    | Unknown     | Always `0x00` (observed)                                 |
+  | **BODY**                                                                               |
+  | 26–34  | 8    | Packet ID   | Identifier of the output defined on the remote system    |
+  | 34     | 1    | Unknown     | Always `0x00` (observed)                                 |
+  | 35–36  | 2    | Data Length | Length of payload                                        |
+  | 37     | 1    | Data Type   | Type of transmitted value                                |
+  | 38..n  | var  | Payload     | Data depending on type                                   |
 
-| Offset | Size | Field       | Description                                              |
-|--------|------|-------------|----------------------------------------------------------|
-| **HEADER**                                                                             |
-| 0      | 1    | Packet Type | `0x9E` when plain IO output is sent                      |
-| 1–7    | 7    | Unknown     | Purpose currently unknown                                |
-| 8–15   | 8    | Own ID      | Configured under **Network Intercommunication → Own ID** |
-| 16     | 1    | Unknown     | Always `0x00` (observed)                                 |
-| 17–24  | 8    | Target ID   | Configured as **ID of the Remote System**                |
-| 25     | 1    | Unknown     | Always `0x00` (observed)                                 |
-| **BODY**                                                                               |
-| 26–34  | 8    | Packet ID   | Identifier of the output defined on the remote system    |
-| 34     | 1    | Unknown     | Always `0x00` (observed)                                 |
-| 35–36  | 2    | Data Length | Length of payload                                        |
-| 37     | 1    | Data Type   | Type of transmitted value                                |
-| 38..n  | var  | Payload     | Data depending on type                                   |
+  ---
+</details>
 
----
 
-# **Encrypted** Output Data Packet (First Byte `0x9F`)
+<details>
+  <summary>0x9F Encrypted Output Data Packet</summary>
 
-Example packet:
+  Example packet:
 
-```
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58
-9f 00 00 00 00 00 00 00 73 65 72 76 65 72 00 00 00 6e 65 78 75 73 00 00 00 00 02 9c bd db 6a 55 51 5f 2d 36 e0 c8 5b 2d 6b 17 71 44 21 54 86 22 6c 63 26 c2 8f dc ca 8e cf af 50
-```
+  ```
+  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58
+  9f 00 00 00 00 00 00 00 73 65 72 76 65 72 00 00 00 6e 65 78 75 73 00 00 00 00 02 9c bd db 6a 55 51 5f 2d 36 e0 c8 5b 2d 6b 17 71 44 21 54 86 22 6c 63 26 c2 8f dc ca 8e cf af 50
+  ```
 
----
+  ---
 
-## Packet Layout
+  ## Packet Layout
 
-| Offset | Size | Field       | Description                                                 |
-|--------|------|-------------|-------------------------------------------------------------|
-| **HEADER**                                                                                |
-| 0      | 1    | Packet Type | `0x9E` when plain IO output is sent                         |
-| 1–7    | 7    | Unknown     | Purpose currently unknown                                   |
-| 8–15   | 8    | Own ID      | Configured under **Network Intercommunication → Own ID**    |
-| 16     | 1    | Unknown     | Always `0x00` (observed)                                    |
-| 17–24  | 8    | Target ID   | Configured as **ID of the Remote System**                   |
-| 25     | 1    | Unknown     | Always `0x00` (observed)                                    |
-| **BODY**                                                                                  |
-| 26     | 1    | AES Blocks  | amount of AES Blocks following n*16 bytes                   |
-| 27     | 1    | IV          | first AES block which also stores the initialization vector |
-| 37..n  | var  | Payload     | Type of transmitted value                                   |
+  | Offset | Size | Field       | Description                                                 |
+  |--------|------|-------------|-------------------------------------------------------------|
+  | **HEADER**                                                                                |
+  | 0      | 1    | Packet Type | `0x9E` when plain IO output is sent                         |
+  | 1–7    | 7    | Unknown     | Purpose currently unknown                                   |
+  | 8–15   | 8    | Own ID      | Configured under **Network Intercommunication → Own ID**    |
+  | 16     | 1    | Unknown     | Always `0x00` (observed)                                    |
+  | 17–24  | 8    | Target ID   | Configured as **ID of the Remote System**                   |
+  | 25     | 1    | Unknown     | Always `0x00` (observed)                                    |
+  | **BODY**                                                                                  |
+  | 26     | 1    | AES Blocks  | amount of AES Blocks following n*16 bytes                   |
+  | 27     | 1    | IV          | first AES block which also stores the initialization vector |
+  | 37..n  | var  | Payload     | Type of transmitted value                                   |
 
-### Decrypted Content
+  ### Decrypted Content
 
-| Offset | Size | Field       | Description                                                 |
-|--------|------|-------------|-------------------------------------------------------------|
-| BODY                                                                                      |
-| 0–8    | 8    | Packet ID   | Identifier of the output defined on the remote system       |
-| 8      | 1    | Unknown     | Always `0x00` (observed)                                    |
-| 9–10   | 2    | Data Length | Length of payload                                           |
-| 11     | 1    | Unknown     | Always `0x00` (observed)                                    |
-| 12..n  | var  | Payload     | Data depending on the type                                  |
+  | Offset | Size | Field       | Description                                                 |
+  |--------|------|-------------|-------------------------------------------------------------|
+  | BODY                                                                                      |
+  | 0–8    | 8    | Packet ID   | Identifier of the output defined on the remote system       |
+  | 8      | 1    | Unknown     | Always `0x00` (observed)                                    |
+  | 9–10   | 2    | Data Length | Length of payload                                           |
+  | 11     | 1    | Unknown     | Always `0x00` (observed)                                    |
+  | 12..n  | var  | Payload     | Data depending on the type                                  |
 
----
+</details>
 
-# Data Types
+<details>
+  <summary>0x8D Status Packet</summary>
+
+  This packet is sent cyclically every **~7 minutes**.
+
+  Example:
+
+  ```
+  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
+  8d 00 00 00 eb 23 a2 94 73 65 72 76 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64
+  ```
+
+  | Offset | Size | Description              |
+  |--------|------|--------------------------|
+  | 0      | 1    | Packet Type (`0x8D`)     |
+  | 1–7    | 7    | Unknown                  |
+  | 8–15   | 8    | Loxone Miniserver Name   |
+  | 16..n  | var  | Unknown fields           |
+
+  Purpose of the remaining data is currently unknown.
+
+</details>
+
+
+
+## Data Types
 
 ```typescript
 export enum DATA_TYPE {
@@ -89,158 +118,121 @@ export enum DATA_TYPE {
 }
 ```
 
----
+### Payload Formats
 
-# Payload Formats
+<details>
+  <summary>DIGITAL</summary>
+  | Size   | Type  | Description |
+  |--------|-------|-------------|
+  | 1 byte | UINT8 | `0` or `1`  |
+</details>
 
-## DIGITAL
+<details>
+  <summary>ANALOG</summary>
+  | Size    | Type        | Description           |
+  |---------|-------------|-----------------------|
+  | 8 bytes | Double (LE) | Floating point value  |
+</details>
 
-| Size   | Type  | Description |
-|--------|-------|-------------|
-| 1 byte | UINT8 | `0` or `1`  |
 
----
+<details>
+  <summary>TEXT</summary>
+  | Size     | Type         | Description              |
+  |----------|--------------|--------------------------|
+  | variable | UTF-8 string | Null terminated (`0x00`) |
+</details>
 
-## ANALOG
 
-| Size    | Type        | Description           |
-|---------|-------------|-----------------------|
-| 8 bytes | Double (LE) | Floating point value  |
+<details>
+  <summary>T5</summary>
+  | Size    | Type              |
+  |---------|-------------------|
+  | 8 bytes | Unknown structure |
+</details>
 
----
 
-## TEXT
+<details>
+  <summary>SmartActuatorRGBW</summary>
+  Total size: **8 bytes**
 
-| Size     | Type         | Description              |
-|----------|--------------|--------------------------|
-| variable | UTF-8 string | Null terminated (`0x00`) |
+  | Offset | Size | Description                           |
+  |--------|------|---------------------------------------|
+  | 0–3    | 4    | RGBW values (0–100)                   |
+  | 4–5    | 2    | Fade time (UINT16) in **0.1 seconds** |
+  | 6–7    | 2    | Unknown                               |
+</details>
 
----
 
-## T5
+<details>
+  <summary>SmartActuatorSingleChannel</summary>
+  Total size: **8 bytes**
 
-| Size    | Type              |
-|---------|-------------------|
-| 8 bytes | Unknown structure |
+  | Offset | Size | Description                           |
+  |--------|------|---------------------------------------|
+  | 0–2    | 3    | Unknown                               |
+  | 3      | 1    | Channel value                         |
+  | 4–5    | 2    | Fade time (UINT16) in **0.1 seconds** |
+</details>
 
----
 
-## SmartActuatorRGBW
+<details>
+  <summary>SmartActuatorTunableWhite</summary>
+  Total size: **8 bytes**
 
-Total size: **8 bytes**
+  | Offset | Size | Description                             |
+  |--------|------|-----------------------------------------|
+  | 0–1    | 2    | Color temperature (Kelvin)              |
+  | 2–3    | 2    | Brightness (%)                          |
+  | 4–5    | 2    | Fade time (UINT16) in **0.2 seconds**   |
+  | 6–7    | 2    | Unknown                                 |
+</details>
 
-| Offset | Size | Description                           |
-|--------|------|---------------------------------------|
-| 0–3    | 4    | RGBW values (0–100)                   |
-| 4–5    | 2    | Fade time (UINT16) in **0.1 seconds** |
-| 6–7    | 2    | Unknown                               |
 
----
+## Encryption
 
-## SmartActuatorSingleChannel
+Packets may optionally be encrypted and uses **AES-128-CBC**
 
-Total size: **8 bytes**
+<details>
+  <summary>Key Derivation</summary>
 
-| Offset | Size | Description                           |
-|--------|------|---------------------------------------|
-| 0–2    | 3    | Unknown                               |
-| 3      | 1    | Channel value                         |
-| 4–5    | 2    | Fade time (UINT16) in **0.1 seconds** |
+  The encryption key is derived from the password:
 
----
+  ```
+  key = SHA256(password)[0..15]
+  ```
 
-## SmartActuatorTunableWhite
+  The **first 16 bytes** of the SHA-256 hash are used as the AES key.
 
-Total size: **8 bytes**
+</details>
 
-| Offset | Size | Description                             |
-|--------|------|-----------------------------------------|
-| 0–1    | 2    | Color temperature (Kelvin)              |
-| 2–3    | 2    | Brightness (%)                          |
-| 4–5    | 2    | Fade time (UINT16) in **0.2 seconds**   |
-| 6–7    | 2    | Unknown                                 |
 
----
+<details>
+  <summary>Encrypted Packet Body</summary>
+  At **byte offset 26**, the header specifies the number of **AES blocks (16 bytes each)** contained in the encrypted section.
 
-# Status Packet (First Byte `0x8D`)
+  **Important**
 
-This packet is sent cyclically every **~7 minutes**.
+  - The value represents the **total number of AES blocks**
+  - The encrypted section always contains **at least 2 blocks**
 
-Example:
+  | Block      | Description                  |
+  |------------|------------------------------|
+  | Block 0    | Initialization Vector (IV)   |
+  | Block 1..n | Encrypted payload            |
 
-```
-00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
-8d 00 00 00 eb 23 a2 94 73 65 72 76 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64
-```
+  After decryption, the payload structure matches the **unencrypted packet format**, except that the **data type field is not included**.
 
-| Offset | Size | Description              |
-|--------|------|--------------------------|
-| 0      | 1    | Packet Type (`0x8D`)     |
-| 1–7    | 7    | Unknown                  |
-| 8–15   | 8    | Loxone Miniserver Name   |
-| 16..n  | var  | Unknown fields           |
+</details>
+<details>
+  <summary>Decryption Process</summary>
 
-Purpose of the remaining data is currently unknown.
+  1. Read the **block count** from offset `26`.
+  2. Extract the encrypted section:
 
----
+  ```
+  block_count * 16 bytes
+  ```
 
-# Encryption
-
-Packets may optionally be encrypted.
-
-Encryption uses:
-
-- **AES-128**
-- **CBC mode**
-
----
-
-## Key Derivation
-
-The encryption key is derived from the password:
-
-```
-key = SHA256(password)[0..15]
-```
-
-The **first 16 bytes** of the SHA-256 hash are used as the AES key.
-
----
-
-## Encrypted Packet Layout
-
-The **first 25 bytes remain unencrypted**, containing:
-
-- encryption indicator
-- sender ID
-- target ID
-
-The encrypted section follows afterwards.
-
-At **byte offset 26**, the header specifies the number of **AES blocks (16 bytes each)** contained in the encrypted section.
-
-### Important
-
-- The value represents the **total number of AES blocks**
-- The encrypted section always contains **at least 2 blocks**
-
-| Block      | Description                  |
-|------------|------------------------------|
-| Block 0    | Initialization Vector (IV)   |
-| Block 1..n | Encrypted payload            |
-
-After decryption, the payload structure matches the **unencrypted packet format**, except that the **data type field is not included**.
-
----
-
-## Decryption Process
-
-1. Read the **block count** from offset `26`.
-2. Extract the encrypted section:
-
-```
-block_count * 16 bytes
-```
-
-3. Use the **first 16 bytes** as the **IV**.
-4. Decrypt the remaining blocks using **AES-128-CBC** and the derived key.
+  3. Use the **first 16 bytes** as the **IV**.
+  4. Decrypt the remaining blocks using **AES-128-CBC** and the derived key.
+</details>
