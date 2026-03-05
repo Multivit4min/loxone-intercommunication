@@ -55,3 +55,8 @@ server.on("input", ({ packet }) => {
   console.log(`Receive packet id "${packet.packetId}" with type ${DATA_TYPE[packet.type]} and value ${value}`)
 })
 ```
+
+Protocol
+--------
+
+If you want more informations about the Loxone Intercommunication Protocol see the [PROTOCOL.md](PROTOCOL.md) file
