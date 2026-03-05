@@ -122,6 +122,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>DIGITAL</summary>
+
   | Size   | Type  | Description |
   |--------|-------|-------------|
   | 1 byte | UINT8 | `0` or `1`  |
@@ -129,6 +130,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>ANALOG</summary>
+
   | Size    | Type        | Description           |
   |---------|-------------|-----------------------|
   | 8 bytes | Double (LE) | Floating point value  |
@@ -137,6 +139,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>TEXT</summary>
+
   | Size     | Type         | Description              |
   |----------|--------------|--------------------------|
   | variable | UTF-8 string | Null terminated (`0x00`) |
@@ -145,6 +148,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>T5</summary>
+
   | Size    | Type              |
   |---------|-------------------|
   | 8 bytes | Unknown structure |
@@ -153,6 +157,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>SmartActuatorRGBW</summary>
+
   Total size: **8 bytes**
 
   | Offset | Size | Description                           |
@@ -165,6 +170,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>SmartActuatorSingleChannel</summary>
+
   Total size: **8 bytes**
 
   | Offset | Size | Description                           |
@@ -177,6 +183,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>SmartActuatorTunableWhite</summary>
+  
   Total size: **8 bytes**
 
   | Offset | Size | Description                             |
