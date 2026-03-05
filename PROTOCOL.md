@@ -183,7 +183,7 @@ export enum DATA_TYPE {
 
 <details>
   <summary>SmartActuatorTunableWhite</summary>
-  
+
   Total size: **8 bytes**
 
   | Offset | Size | Description                             |
@@ -215,6 +215,7 @@ Packets may optionally be encrypted and uses **AES-128-CBC**
 
 <details>
   <summary>Encrypted Packet Body</summary>
+
   At **byte offset 26**, the header specifies the number of **AES blocks (16 bytes each)** contained in the encrypted section.
 
   **Important**
