@@ -1,5 +1,3 @@
-Receive
-
 IO Data First Byte 0x9e
 =======================
 
@@ -15,7 +13,7 @@ General Data Encoding is in Little Endian format
 
 Byte 0-7 Unknown
 ----------------
-`Byte 0` seems always to be `9e`
+`Byte 0` is `9e` when plain output is sent from loxone
 
 
 Byte 8-15 Own ID
@@ -43,7 +41,7 @@ Byte 26-34 Packet ID
 Packet Id which is defined when creating an output on the remote system
 
 
-Byte 35+36? Data Length
+Byte 35+36 Data Length
 -------------------
 Length of Data Content in `UINT8` or `UINT16` Format
 
@@ -123,3 +121,40 @@ Is being sent cyclic in 7 minute intervals
                         0  1  2  3  4  5  6  7
                         loxone miniserver name
 ```
+
+
+# Encryption
+
+Packets are encrypted using **AES-128 in CBC mode**.
+
+The encryption key is derived from the user password by computing the SHA-256 hash and using the **first 16 bytes** of the result:
+```
+key = SHA256(password)[0..15]
+```
+
+## Packet Structure
+
+The first 25 bytes are by default unencrypted which includes
+
+- information that the packet is encrypted
+- miniservers Id
+- target Id
+
+
+Encrypted packets contain an initialization vector (**IV**) followed by the encrypted payload.
+
+At **byte offset 26**, the packet header specifies the number of **16-byte blocks** contained in the encrypted section.
+
+**Important details:**
+
+- The value represents the **total number of AES blocks**.
+- The encrypted section always contains **at least 2 blocks**:
+  - **Block 0** – Initialization Vector (**IV**)
+  - **Block 1..n** – Encrypted payload data
+
+## Decryption Process
+
+1. Read the block count from **offset 26**.
+2. Extract the encrypted section (`block_count × 16 bytes`).
+3. Use the **first 16 bytes** as the IV.
+4. Decrypt the remaining blocks using **AES-128-CBC** with the derived key.
